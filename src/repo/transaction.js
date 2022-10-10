@@ -2,7 +2,7 @@ const postgreDb = require("../config/postgre");
 
 const getTransaction = () => {
   return new Promise((resolve, reject) => {
-    const query = "select * from transactions";
+    const query = "select transaction_id,name_product,category_product,price_product,size_product,payment from transactions";
     postgreDb.query(query, (err, result) => {
       if (err) {
         console.log(err);
@@ -14,15 +14,15 @@ const getTransaction = () => {
 };
 const createTransaction = (body) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into transactions ( name_product, category_product, price_product, address , size_product) values ($1,$2,$3,$4,$5)";
+    const query = "insert into transactions ( name_product, category_product, price_product, address , size_product, payment, buyer) values ($1,$2,$3,$4,$5,$6,$7)";
     // for loop query += ",($5,$6,$7,$8)";
-    const { name_product, category_product, price_product, address, size_product } = body;
-    postgreDb.query(query, [name_product, category_product, price_product, address, size_product], (err, queryResult) => {
+    const { name_product, category_product, price_product, address, size_product, payment, buyer } = body;
+    postgreDb.query(query, [name_product, category_product, price_product, address, size_product, payment, buyer], (err, queryResult) => {
       if (err) {
         console.log(err);
         return reject(err);
       }
-      resolve(queryResult);
+      resolve("CREATE DATA SUCCESS");
     });
   });
 };
@@ -43,7 +43,7 @@ const editTransaction = (body, params) => {
     postgreDb
       .query(query, values)
       .then((response) => {
-        resolve(response);
+        resolve("EDIT DATA SUCCESS");
       })
       .catch((err) => {
         console.log(err);
@@ -60,16 +60,14 @@ const deleteTransaction = (params) => {
         console.log(err);
         return reject(err);
       }
-      resolve(result);
+      resolve("DELETE DATA SUCCESS");
     });
   });
 };
 
-const transactionRepo = {
+module.exports = {
   getTransaction,
   createTransaction,
   editTransaction,
   deleteTransaction,
 };
-
-module.exports = transactionRepo;

@@ -2,7 +2,7 @@ const postgreDb = require("../config/postgre");
 
 const getUsers = () => {
   return new Promise((resolve, reject) => {
-    const query = "select * from users";
+    const query = "select name, gender, email, phone from users";
     postgreDb.query(query, (err, result) => {
       if (err) {
         console.log(err);
@@ -14,15 +14,15 @@ const getUsers = () => {
 };
 const createUsers = (body) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into users ( name, email, password, phone) values ($1,$2,$3,$4)";
+    const query = "insert into users ( name, gender, email, password, phone, address) values ($1,$2,$3,$4,$5,$6)";
 
-    const { name, email, password, phone } = body;
-    postgreDb.query(query, [name, email, password, phone], (err, queryResult) => {
+    const { name, gender, email, password, phone, address } = body;
+    postgreDb.query(query, [name, gender, email, password, phone, address], (err, queryResult) => {
       if (err) {
         console.log(err);
         return reject(err);
       }
-      resolve(queryResult);
+      resolve("CREATE DATA SUCCESS");
     });
   });
 };
@@ -44,7 +44,7 @@ const editUsers = (body, params) => {
     postgreDb
       .query(query, values)
       .then((response) => {
-        resolve(response);
+        resolve("UPDATE DATA SUCCESS");
       })
       .catch((err) => {
         console.log(err);
@@ -61,16 +61,14 @@ const deleteUsers = (params) => {
         console.log(err);
         return reject(err);
       }
-      resolve(result);
+      resolve("DELETE DATA SUCCESS");
     });
   });
 };
 
-const usersRepo = {
+module.exports = {
   getUsers,
   createUsers,
   editUsers,
   deleteUsers,
 };
-
-module.exports = usersRepo;

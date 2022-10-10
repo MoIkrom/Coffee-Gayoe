@@ -2,7 +2,7 @@ const postgreDb = require("../config/postgre");
 
 const getProduct = () => {
   return new Promise((resolve, reject) => {
-    const query = "select * from products";
+    const query = "select product_name, priceproduct, categoryproduct, stock from products";
     postgreDb.query(query, (err, result) => {
       if (err) {
         console.log(err);
@@ -22,7 +22,7 @@ const createProduct = (body) => {
         console.log(err);
         return reject(err);
       }
-      resolve(queryResult);
+      resolve("CREATE DATA SUCCESS");
     });
   });
 };
@@ -40,11 +40,10 @@ const editProduct = (body, params) => {
       query += `${key} = $${idx + 1},`;
       values.push(body[key]);
     });
-
     postgreDb
       .query(query, values)
       .then((response) => {
-        resolve(response);
+        resolve("EDIT DATA SUCCESS");
       })
       .catch((err) => {
         console.log(err);
@@ -61,16 +60,86 @@ const deleteProduct = (params) => {
         console.log(err);
         return reject(err);
       }
-      resolve(result);
+      resolve("DELETE DATA SUCCESS");
+    });
+  });
+};
+const sortingProduct = (queryparams) => {
+  return new Promise((resolve, reject) => {
+    let query = "select product_name,categoryproduct, priceproduct  from products order by ";
+    const values = [];
+
+    Object.keys(queryparams).forEach((key, idx, array) => {
+      if (idx === array.length - 1) {
+        query += `${key}`;
+        values.push(queryparams[key]);
+        return;
+      }
+      query += `${key}`;
+      values.push(queryparams[key]);
+    });
+    console.log(values);
+    console.log(query);
+    postgreDb
+      .query(query)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log(err);
+        reject(err);
+      });
+  });
+};
+const filterFood = () => {
+  return new Promise((resolve, reject) => {
+    const queryFilter = "select  product_name , categoryproduct, priceproduct from products where categoryproduct = 'FOOD' ORDER BY product_name ASC";
+    // postgreDb.query(query, queryFilter, (err, result) => {
+    postgreDb.query(queryFilter, (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(result);
+    });
+  });
+};
+const filterCoffee = () => {
+  return new Promise((resolve, reject) => {
+    // const queryFilter = "select * from products";
+    // const query = "select  product_name  from products ";
+    const queryFilter = "select  product_name , categoryproduct, priceproduct from products where categoryproduct = 'COFFEE' ORDER BY product_name ASC";
+    // postgreDb.query(query, queryFilter, (err, result) => {
+    postgreDb.query(queryFilter, (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(result);
+    });
+  });
+};
+const filterNonCoffee = () => {
+  return new Promise((resolve, reject) => {
+    const queryFilter = "select  product_name , categoryproduct, priceproduct from products where categoryproduct = 'NON COFFEE' ORDER BY product_name ASC";
+
+    postgreDb.query(queryFilter, (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(result);
     });
   });
 };
 
-const productRepo = {
+module.exports = {
   getProduct,
   createProduct,
   editProduct,
   deleteProduct,
+  sortingProduct,
+  filterFood,
+  filterCoffee,
+  filterNonCoffee,
 };
-
-module.exports = productRepo;

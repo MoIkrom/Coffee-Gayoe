@@ -2,7 +2,7 @@ const postgreDb = require("../config/postgre");
 
 const getPromo = () => {
   return new Promise((resolve, reject) => {
-    const query = "select * from promos";
+    const query = "select cuponcode, product_name, discount_product , discount_price from promos";
     postgreDb.query(query, (err, result) => {
       if (err) {
         console.log(err);
@@ -21,7 +21,7 @@ const createPromo = (body) => {
         console.log(err);
         return reject(err);
       }
-      resolve(queryResult);
+      resolve("CREATE DATA SUCCESS");
     });
   });
 };
@@ -43,7 +43,7 @@ const editPromo = (body, params) => {
     postgreDb
       .query(query, values)
       .then((response) => {
-        resolve(response);
+        resolve("EDIT DATA SUCCESS");
       })
       .catch((err) => {
         console.log(err);
@@ -60,16 +60,14 @@ const deletePromo = (params) => {
         console.log(err);
         return reject(err);
       }
-      resolve(result);
+      resolve("DELETE DATA SUCCESS");
     });
   });
 };
 
-const promoRepo = {
+module.exports = {
   getPromo,
   createPromo,
   editPromo,
   deletePromo,
 };
-
-module.exports = promoRepo;
