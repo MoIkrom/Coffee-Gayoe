@@ -3,7 +3,7 @@ const promoRepo = require("../repo/promo");
 module.exports = {
   get: async (req, res) => {
     try {
-      const response = await promoRepo.getPromo();
+      const response = await promoRepo.getPromo(req.query);
       res.status(200).json({
         result: response.rows,
       });
