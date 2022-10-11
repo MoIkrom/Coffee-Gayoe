@@ -1,5 +1,4 @@
 const express = require("express");
-
 const promoRouter = express.Router();
 const { get, create, edit, drop } = require("../controllers/promo");
 
