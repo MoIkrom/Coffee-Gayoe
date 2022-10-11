@@ -2,7 +2,8 @@ const postgreDb = require("../config/postgre");
 
 const getTransaction = () => {
   return new Promise((resolve, reject) => {
-    const query = "select transaction_id,name_product,category_product,price_product,size_product,payment from transactions";
+    const query =
+      "select t.transaction_id ,  u.name , p.product_name , p.priceproduct , pr.cuponcode , u.address from transactions t left join users u on u.id = t.user_id left join products p on p.id  = t.product_id left join promos pr on p.promo_id  = pr.id  ";
     postgreDb.query(query, (err, result) => {
       if (err) {
         console.log(err);
@@ -14,10 +15,10 @@ const getTransaction = () => {
 };
 const createTransaction = (body) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into transactions ( name_product, category_product, price_product, address , size_product, payment, buyer) values ($1,$2,$3,$4,$5,$6,$7)";
-    // for loop query += ",($5,$6,$7,$8)";
-    const { name_product, category_product, price_product, address, size_product, payment, buyer } = body;
-    postgreDb.query(query, [name_product, category_product, price_product, address, size_product, payment, buyer], (err, queryResult) => {
+    const query = "insert into transactions ( user_id , product_id, sub_total , payment) values ($1,$2,$3,$4)";
+    const { user_id, product_id, sub_total, payment } = body;
+
+    postgreDb.query(query, [user_id, product_id, sub_total, payment], (err, queryResult) => {
       if (err) {
         console.log(err);
         return reject(err);
@@ -42,7 +43,7 @@ const editTransaction = (body, params) => {
 
     postgreDb
       .query(query, values)
-      .then((response) => {
+      .then(() => {
         resolve("EDIT DATA SUCCESS");
       })
       .catch((err) => {
