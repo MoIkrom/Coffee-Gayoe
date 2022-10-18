@@ -7,7 +7,7 @@ module.exports = {
       const { email, password } = body;
       console.log(password);
       // 1. cek email di DB
-      const getPasswordByEmailQuery = "SELECT id, display_name, password FROM accounts WHERE email = $1";
+      const getPasswordByEmailQuery = "SELECT id, display_name, password , role FROM accounts WHERE email = $1";
       const getPasswordByEmailValues = [email];
       postgreDb.query(getPasswordByEmailQuery, getPasswordByEmailValues, (err, response) => {
         if (err) {
@@ -39,6 +39,7 @@ module.exports = {
             user_id: response.rows[0].id,
             display_name: response.rows[0].display_name,
             email,
+            role: response.rows[0].role,
           };
           jwt.sign(
             payload,
@@ -72,40 +73,17 @@ module.exports = {
         });
     });
   },
+  getUserByPhoneNumber: (phone_number) => {
+    return new Promise((resolve, reject) => {
+      const query = "SELECT email FROM accounts WHERE email = $1";
+      postgreDb
+        .query(query, [phone_number])
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 };
-
-// ==========================================
-
-// const postgreDb = require("../config/postgre");
-// // const { v4: uuidV4 } = require("uuid");
-
-// module.exports = {
-//   register: (email, phone_number, hashedPassword) => {
-//     return new Promise((resolve, reject) => {
-//       const query = "INSERT INTO accounts (id, email, phone_number, password, role,  created_at) VALUES ($1, $2, $3, $4, $5)";
-//       // const id = uuidV4();
-//       const timestamp = new Date(Date.now());
-//       const values = [id, email, phone_number, hashedPassword, timestamp];
-//       postgreDb
-//         .query(query, values)
-//         .then(() => {
-//           resolve();
-//         })
-//         .catch((err) => {
-//           reject({ status: 500, err });
-//         });
-//     });
-//   },
-//
-//   getPassByUserEmail: async (email) => {
-//     try {
-//       const query = "SELECT id, password FROM accounts WHERE email = $1";
-//       const result = await postgreDb.query(query, [email]);
-//       if (result.rowCount === 0) throw { status: 400, err: { msg: "Email Is Not Registered" } };
-//       return result.rows[0];
-//     } catch (error) {
-//       const { status = 500, err } = error;
-//       throw { status, err };
-//     }
-//   },
-// };

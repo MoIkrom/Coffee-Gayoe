@@ -20,4 +20,12 @@ mainRouter.use(`${prefix}/users`, usersRouter);
 mainRouter.use(`${prefix}/auth`, authRouter);
 // mainRouter.use(`${prefix}/category`, categoryRouter);
 
+// import middleware Upload
+const uploadMiddleware = require("../middlewares/M_upload");
+// const { json } = require("express");
+mainRouter.post("/", uploadMiddleware.single("image"), (req, res) => {
+  console.log(req.file);
+  res.json({ file: req.file });
+});
+
 module.exports = mainRouter;

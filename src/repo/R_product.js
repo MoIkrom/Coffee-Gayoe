@@ -40,15 +40,6 @@ module.exports = {
         query += ` order by price desc`;
         // link += `price=${price}&`;
       }
-      // if (transactions == "popular") {
-      //   if (filter) {
-      //     query = `select p.id, p.product_name, p.price, c.category_name, p.image, count(tpz.product_id) as sold from products p left join transactions_product_sizes tpz on p.id = tpz.product_id join categories c on p.category_id = c.id where lower(c.category_name) like lower ('%${queryParams.filter}%') group by p.id, p.product_name, p.price, c.category_name, p.image, p.created_at order by sold desc`;
-      //     link += `filter=${queryParams.filter}&transactions=${queryParams.transactions}&`;
-      //   } else {
-      //     query = `select p.id, p.product_name, p.price, c.category_name, p.image, count(tpz.product_id) as sold from products p left join transactions_product_sizes tpz on p.id = tpz.product_id join categories c on p.category_id = c.id group by p.id, p.product_name, p.price, c.category_name, p.image, p.created_at order by sold desc`;
-      //     link += `transactions=${queryParams.transactions}&`;
-      //   }
-      // }
 
       // start Paginasi
 
@@ -86,6 +77,8 @@ module.exports = {
         });
     });
   },
+
+  //
   getSingleProductFromServer: (id) => {
     return new Promise((resolve, reject) => {
       const query = "select * from products where id = $1";
@@ -105,6 +98,8 @@ module.exports = {
         });
     });
   },
+
+  //
   findProduct: (query) => {
     return new Promise((resolve, reject) => {
       const { category, order, sort } = query;
@@ -129,6 +124,8 @@ module.exports = {
         });
     });
   },
+
+  //
   searchProduct: (query) => {
     return new Promise((resolve, reject) => {
       const { menu, order, sort } = query;
@@ -153,6 +150,8 @@ module.exports = {
         });
     });
   },
+
+  //
   findPromotion: (query) => {
     return new Promise((resolve, reject) => {
       const { code, order, sort } = query;
@@ -177,13 +176,14 @@ module.exports = {
         });
     });
   },
-  createNewProduct: (body, picture) => {
+
+  //
+  createNewProduct: (body) => {
     return new Promise((resolve, reject) => {
-      const { product_name, category_id, price, image } = body;
-      // const id = uuidV4();
-      const query = "INSERT INTO products( product_name, category_id, price, image) VALUES ($1, $2, $3, $4) RETURNING *";
+      const { product_name, category, price } = body;
+      const query = "INSERT INTO products( product_name, category, price) VALUES ($1, $2, $3) RETURNING *";
       postgreDb
-        .query(query, [product_name, category_id, price, image])
+        .query(query, [product_name, category, price])
         .then(({ rows }) => {
           const response = {
             data: rows[0],
@@ -193,6 +193,8 @@ module.exports = {
         .catch((err) => reject({ status: 500, err }));
     });
   },
+
+  //
   deleteProduct: (id) => {
     return new Promise((resolve, reject) => {
       const query = "DELETE FROM products where products.id = $1";
@@ -210,12 +212,14 @@ module.exports = {
         });
     });
   },
+
+  //
   updateProduct: (id, body) => {
     return new Promise((resolve, reject) => {
-      const { product_name, category_id, price, image } = body;
-      const sqlQuery = "UPDATE products SET menu = $1, category = $2, size = $3, price = $4, image = $5, WHERE products.id = $5";
+      const { product_name, category, price } = body;
+      const sqlQuery = "UPDATE products SET product_name = $1, category = $2, price = $3, WHERE products.id = $5";
       postgreDb
-        .query(sqlQuery, [product_name, category_id, price, image])
+        .query(sqlQuery, [product_name, category, price])
         .then((data) => {
           const response = {
             data,

@@ -11,7 +11,7 @@ productRouter.get("/", validate.queryFind, findProductByQuery);
 productRouter.get("/", searchProductByQuery);
 productRouter.get("/", findPromotionByQuery);
 
-// productRouter.post("/", checkToken, imageUpload.single("image"), validate.productData, postNewProduct);
+productRouter.post("/", postNewProduct);
 
 productRouter.patch("/:id", updateProductById);
 productRouter.delete("/:id", deleteProductById);

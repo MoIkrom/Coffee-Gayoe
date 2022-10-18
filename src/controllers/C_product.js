@@ -61,12 +61,7 @@ module.exports = {
       });
   },
   postNewProduct: (req, res) => {
-    const { file } = req;
-    let image;
-    if (file) {
-      image = file.path.replace("public", "").replace(/\\/g, "/");
-    }
-    createNewProduct(req.body, image)
+    createNewProduct(req.body)
       .then(({ data }) => {
         res.status(200).json({
           message: "Product Created",

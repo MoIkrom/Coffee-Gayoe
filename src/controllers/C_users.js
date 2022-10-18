@@ -35,7 +35,7 @@ module.exports = {
       });
   },
   createNewProfile: async (req, res) => {
-    const { body } = req;
+    console.log(req);
     usersRepo
       .createProfile(req.body, req.userPayload)
       .then((response) => {
@@ -54,8 +54,9 @@ module.exports = {
       });
   },
   get: async (req, res) => {
+    console.log(req.userPayload);
     try {
-      const response = await usersRepo.getAccount(req.query);
+      const response = await usersRepo.getUsers();
       res.status(201).json({
         result: response.rows,
       });
