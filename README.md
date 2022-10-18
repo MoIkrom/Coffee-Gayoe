@@ -15,14 +15,14 @@ Authentic Coffee from Aceh
 
 ## ENDPOINT DETAILS
 
-| Endpoint     |            Method             | Info         |
-| ------------ | :---------------------------: | :----------- |
-| /auth        |            `POST`             | Auth         |
-| /user        | `POST` `GET` `PATCH` `DELETE` | Users        |
-| /profile     |     `POST` `GET` `PATCH`      | Profiles     |
-| /product     | `POST` `GET` `PATCH` `DELETE` | Products     |
-| /promo       | `POST` `GET` `PATCH` `DELETE` | Promos       |
-| /transaction | `POST` `GET` `PATCH` `DELETE` | Transactions |
+| Endpoint        |            Method             | Info         |
+| --------------- | :---------------------------: | :----------- |
+| /auth           |            `POST`             | Auth         |
+| /users          | `POST` `GET` `PATCH` `DELETE` | Users        |
+| /users/profile  |      `PATCH`                  | Profiles     |
+| /products       | `POST` `GET` `PATCH` `DELETE` | Products     |
+| /promos         | `POST` `GET` `PATCH` `DELETE` | Promos       |
+| /transaction    | `POST` `GET` `PATCH` `DELETE` | Transactions |
 
 
 
