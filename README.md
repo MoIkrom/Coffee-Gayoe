@@ -32,9 +32,8 @@ Authentic Coffee from Aceh
 2. Form input Validation, hash password.
 3. Searching and Sorting with Pagination.
 4. Page Navigation Handling.
-5. Create products with upload image.
 
-## Getting Started
+## Installation
 
 1. Download this Project or you can type
    `git@github.com:MoIkrom/Coffee_Gayoe.git`
@@ -48,12 +47,11 @@ https://github.com/MoIkrom/Coffee_Gayoe.git
 ```sh
 $ npm install
 ```
-
-3. Starting client
-
-```sh
-$ npm start
+3. Add .env<br>
+   `DB_PORT = 8080 DB_HOST_DEV="localhost" DB_USER_DEV="postgres" DB_NAME_DEV="coffe_gayoe" DB_PASS_DEV="612mikram" DB_PORT="5432" SECRET_KEY="WEB11" ISSUER = "FAZZTRACK"`
+4. Start App<br>
+   `$ npm run dev`
 ```
 
-4. Gayoe Coffee is Running
+5. Gayoe Coffee is Running
 
