@@ -48,9 +48,12 @@ https://github.com/MoIkrom/Coffee_Gayoe.git
 $ npm install
 ```
 3. Add .env<br>
+
+```sh
    `DB_PORT = 8080 DB_HOST_DEV="localhost" DB_USER_DEV="postgres" DB_NAME_DEV="coffe_gayoe" DB_PASS_DEV="612mikram" DB_PORT="5432" SECRET_KEY="WEB11" ISSUER = "FAZZTRACK"`
-   
+```
 4. Start App<br>
+```sh
    `$ npm run dev`
 ```
 5. Gayoe Coffee is Running
