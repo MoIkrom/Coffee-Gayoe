@@ -57,5 +57,3 @@ $ npm start
 
 4. Gayoe Coffee is Running
 
-## Related Project
-
