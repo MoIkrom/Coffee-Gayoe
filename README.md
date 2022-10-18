@@ -49,9 +49,9 @@ $ npm install
 ```
 3. Add .env<br>
    `DB_PORT = 8080 DB_HOST_DEV="localhost" DB_USER_DEV="postgres" DB_NAME_DEV="coffe_gayoe" DB_PASS_DEV="612mikram" DB_PORT="5432" SECRET_KEY="WEB11" ISSUER = "FAZZTRACK"`
+   
 4. Start App<br>
    `$ npm run dev`
 ```
-
 5. Gayoe Coffee is Running
 
