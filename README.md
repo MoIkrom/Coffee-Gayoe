@@ -55,8 +55,7 @@ $ npm install
 $ npm start
 ```
 
-4. Bujank Coffee is Running
+4. Gayoe Coffee is Running
 
 ## Related Project
 
--   Backend API Documentation [`here`](https://documenter.getpostman.com/view/23706970/2s847ESaNS)
