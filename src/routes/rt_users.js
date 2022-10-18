@@ -1,31 +1,25 @@
 const express = require("express");
 const usersRouter = express.Router();
-const { checkDuplicate } = require("../middlewares/M_validate");
-// const { registered } = require("../controllers/C_users");
+const { checkDuplicate } = require("../middlewares/M_authentication");
+const { register, editPassword, createNewProfile, get } = require("../controllers/C_users");
+const { checkToken } = require("../middlewares/isLogin");
+const uploadImage = require("../middlewares/M_upload");
+// const upload = uploadImage.single("image");
+const allowedRole = require("../middlewares/M_allowedRole");
 
-const { get, create, edit, drop, password } = require("../controllers/C_users");
+// //register
+usersRouter.post("/", checkDuplicate, register);
+// // Router.post("/new", , authController.register);
 
-//register
-// Router.post("/new", checkDuplicate, authController.register);
-usersRouter.get("/", get);
-usersRouter.post("/", checkDuplicate, create);
-usersRouter.patch("/:id", edit);
-usersRouter.delete("/:id", drop);
-usersRouter.patch("/edit/password", password);
+// Edit Password
+usersRouter.patch("/account", editPassword);
+
+usersRouter.get("/", checkToken, allowedRole("User"), get);
+usersRouter.post("/profile", checkToken, createNewProfile);
+// usersRouter.post("/profile", checkToken, upload, createNewProfile);
+// edit Profile
+usersRouter.patch("/profile/edit", checkToken, editPassword);
+// usersRouter.delete("/:id", drop);
+// usersRouter.patch("/edit/password", password);
 
 module.exports = usersRouter;
-
-// // Profile
-// usersRouter.get("/", get);
-// usersRouter.post("/", create);
-// usersRouter.patch("/:id/profile", edit);
-// usersRouter.delete("/:id", drop);
-
-// // Register
-// usersRouter.get("/account", registered);
-// usersRouter.post("/account", registered);
-// usersRouter.patch("/:id/account", editAcc);
-// usersRouter.delete("/:id/account", dropAcc);
-
-// edit password
-// usersRouter.patch("/:id/account/Pass", editAcc);

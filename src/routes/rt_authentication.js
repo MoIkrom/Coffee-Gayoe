@@ -1,10 +1,23 @@
-const express = require("express");
-const authRouter = express.Router();
-const { get, create, edit, drop } = require("../controllers/C_authentication");
+const authRouter = require("express").Router();
 
-authRouter.get("/", get);
-authRouter.post("/", create);
-authRouter.patch("/:id", edit);
-authRouter.delete("/:id", drop);
+const authController = require("../controllers/C_authentication");
+
+// login
+authRouter.post("/", authController.login);
+// logout
+authRouter.delete("/", (req, res) => {
+  res.json({
+    msg: "Berhasil Logout",
+  });
+});
 
 module.exports = authRouter;
+
+// ===================================
+
+// //logOut
+// Router.delete("/", (_, res) => {
+//   res.json({
+//     msg: "Berhasil Logout",
+//   });
+// });

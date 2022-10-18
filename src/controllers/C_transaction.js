@@ -1,43 +1,82 @@
-const transactionRepo = require("../repo/R_transaction");
+const { getTransaction, getSingleTransactionFromServer, createNewTransaction, deleteTransaction, updateTransaction } = require("../repo/R_transaction");
+const { successResponse, errorResponse } = require("../helpers/response");
 
 module.exports = {
-  get: async (req, res) => {
-    try {
-      console.log("test");
-      const response = await transactionRepo.getTransaction();
-      res.status(200).json({
-        result: response.rows,
+  getAllTransaction: (req, res) => {
+    getTransaction(req.query)
+      .then((result) => {
+        const { totalData, totalPage, data, nextPage, prevPage, currentPage } = result;
+        const meta = {
+          totalData,
+          totalPage,
+          currentPage: currentPage,
+          next: nextPage,
+          prev: prevPage,
+        };
+        successResponse(res, 200, data, meta);
+      })
+      .catch((error) => {
+        const { err, status } = error;
+        errorResponse(res, status, err);
       });
-    } catch (err) {
-      res.status(500).json({
-        msg: "Internal Server Error",
+  },
+  getTransactionById: (req, res) => {
+    const id = req.params.id;
+    getSingleTransactionFromServer(id)
+      .then(({ data }) => {
+        res.status(200).json({
+          data,
+          err: null,
+        });
+      })
+      .catch((error) => {
+        const { err, status } = error;
+        errorResponse(res, status, err);
       });
-    }
   },
-  create: async (req, res) => {
-    try {
-      const response = await transactionRepo.createTransaction(req.body);
-      res.status(201).json({
-        result: response,
+  postNewTransaction: (req, res) => {
+    createNewTransaction(req.body)
+      .then(({ data }) => {
+        res.status(200).json({
+          err: null,
+          data,
+        });
+      })
+      .catch(({ status, err }) => {
+        res.status(status).json({
+          err,
+          data: [],
+        });
       });
-    } catch (err) {
-      res.status(500).json({ msg: "Internal Server Error" });
-    }
   },
-  edit: async (req, res) => {
-    try {
-      const response = await transactionRepo.editTransaction(req.body, req.params);
-      res.status(200).json({ result: response });
-    } catch (err) {
-      res.status(500).json({ msg: "Internal Server Error" });
-    }
+  deleteTransactionById: (req, res) => {
+    const id = req.params.id;
+    deleteTransaction(id)
+      .then(({ data }) => {
+        res.status(200).json({
+          data: data.rowCount,
+          msg: "Delete Success",
+          err: null,
+        });
+      })
+      .catch((error) => {
+        const { err, status } = error;
+        errorResponse(res, status, err);
+      });
   },
-  drop: async (req, res) => {
-    try {
-      const result = await transactionRepo.deleteTransaction(req.params);
-      res.status(200).json({ result });
-    } catch (err) {
-      res.status(500).json({ msg: "Internal Server Error" });
-    }
+  updateTransactionById: (req, res) => {
+    const id = req.params.id;
+    updateTransaction(id, req.body)
+      .then(({ data }) => {
+        res.status(200).json({
+          data: data.rowCount,
+          msg: "Update Success",
+          err: null,
+        });
+      })
+      .catch((error) => {
+        const { err, status } = error;
+        errorResponse(res, status, err);
+      });
   },
 };

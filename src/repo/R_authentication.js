@@ -1,43 +1,69 @@
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const postgreDb = require("../config/postgre");
-
 module.exports = {
-  getProfile: (queryparams) => {
+  login: (body) => {
     return new Promise((resolve, reject) => {
-      let query = "select account_id , first_name, last_name,display_name_id , address from profiles";
-      if (queryparams.search) {
-        query += ` where lower(display_name_id) like lower('%${queryparams.search}%')`;
-      }
-      if (queryparams.filter) {
-        if (queryparams.search) {
-          query += ` and lower(accounts.role::text) like lower('%${queryparams.filter}%')`;
-        } else {
-          query += ` where lower(accounts.role::text) like lower('%${queryparams.filter}%')`;
-        }
-      }
-      if (queryparams.order == "oldest") {
-        query += ` order by created_at desc `;
-      }
-      if (queryparams.order == "newest") {
-        query += ` order by created_at asc `;
-      }
-      if (queryparams.order == "name") {
-        query += ` order by display_name_id asc `;
-      }
-
-      postgreDb.query(query, (err, result) => {
+      const { email, password } = body;
+      console.log(password);
+      // 1. cek email di DB
+      const getPasswordByEmailQuery = "SELECT id, display_name, password FROM accounts WHERE email = $1";
+      const getPasswordByEmailValues = [email];
+      postgreDb.query(getPasswordByEmailQuery, getPasswordByEmailValues, (err, response) => {
         if (err) {
           console.log(err);
-          return reject(err);
+          return reject({ err });
         }
-        return resolve(result);
+        if (response.rows.length === 0) {
+          console.log(response);
+          return reject({
+            err: new Error("Email/Password is Wrong yet"),
+            statusCode: 401,
+          });
+        }
+        // 2. identifikasi password
+        const hashedPassword = response.rows[0].password;
+        bcrypt.compare(password, hashedPassword, (err, isSame) => {
+          if (err) {
+            console.log(err);
+            return reject({ err });
+          }
+          if (!isSame)
+            return reject({
+              err: new Error("Email/Password is Wrong"),
+              statusCode: 401,
+            });
+
+          // 3. proses login => create jwt => return jwt to user
+          const payload = {
+            user_id: response.rows[0].id,
+            display_name: response.rows[0].display_name,
+            email,
+          };
+          jwt.sign(
+            payload,
+            process.env.SECRET_KEY,
+            {
+              expiresIn: "5m",
+              issuer: process.env.ISSUER,
+            },
+            (err, token) => {
+              if (err) {
+                console.log(err);
+                return reject({ err });
+              }
+              return resolve({ token, display_name: payload.display_name });
+            }
+          );
+        });
       });
     });
   },
-  // check Email
-  check_email: (req) => {
+  getUserByEmail: (email) => {
     return new Promise((resolve, reject) => {
-      const sqlQuery = "SELECT email FROM public.users WHERE email = $1";
-      db.query(sqlQuery, [email])
+      const query = "SELECT email FROM accounts WHERE email = $1";
+      postgreDb
+        .query(query, [email])
         .then((result) => {
           resolve(result);
         })
@@ -46,46 +72,40 @@ module.exports = {
         });
     });
   },
-
-  // Register Account
-  CreateProfile: (body) => {
-    return new Promise((resolve, reject) => {
-      const query = "insert into profiles ( account_id , first_name, last_name, display_name_id , address ) values ($1,$2,$3,$4,$5,) returning id";
-      const { account_id, first_name, last_name, display_name_id, address } = body;
-      const values = [account_id, first_name, first_name, display_name_id, address];
-      postgreDb.query(query, values, (err, result) => {
-        if (err) {
-          console.log(err);
-          return reject(err);
-        }
-        return resolve(result);
-      });
-    });
-  },
-
-  editProfile: (body, params) => {
-    return new Promise((resolve, reject) => {
-      let query = "update accounts set returning id";
-      const values = [];
-
-      Object.keys(body).forEach((key, idx, array) => {
-        if (idx === array.length - 1) {
-          query += `${key} = $${idx + 1} where id = $${idx + 2}`;
-          values.push(body[key], params.id);
-          return;
-        }
-        query += `${key} = $${idx + 1},`;
-        values.push(body[key]);
-      });
-      postgreDb
-        .query(query, values)
-        .then(() => {
-          resolve(body);
-        })
-        .catch((err) => {
-          console.log(err);
-          reject(err);
-        });
-    });
-  },
 };
+
+// ==========================================
+
+// const postgreDb = require("../config/postgre");
+// // const { v4: uuidV4 } = require("uuid");
+
+// module.exports = {
+//   register: (email, phone_number, hashedPassword) => {
+//     return new Promise((resolve, reject) => {
+//       const query = "INSERT INTO accounts (id, email, phone_number, password, role,  created_at) VALUES ($1, $2, $3, $4, $5)";
+//       // const id = uuidV4();
+//       const timestamp = new Date(Date.now());
+//       const values = [id, email, phone_number, hashedPassword, timestamp];
+//       postgreDb
+//         .query(query, values)
+//         .then(() => {
+//           resolve();
+//         })
+//         .catch((err) => {
+//           reject({ status: 500, err });
+//         });
+//     });
+//   },
+//
+//   getPassByUserEmail: async (email) => {
+//     try {
+//       const query = "SELECT id, password FROM accounts WHERE email = $1";
+//       const result = await postgreDb.query(query, [email]);
+//       if (result.rowCount === 0) throw { status: 400, err: { msg: "Email Is Not Registered" } };
+//       return result.rows[0];
+//     } catch (error) {
+//       const { status = 500, err } = error;
+//       throw { status, err };
+//     }
+//   },
+// };

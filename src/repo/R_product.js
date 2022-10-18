@@ -1,98 +1,231 @@
 const postgreDb = require("../config/postgre");
 
-const getProduct = (queryparams) => {
-  return new Promise((resolve, reject) => {
-    let query = "select id , product_name, price, category_id, image, created_at from products";
-    if (queryparams.search) {
-      query += ` where lower(product_name) like lower('%${queryparams.search}%')`;
-    }
-    if (queryparams.filtercategory) {
-      if (queryparams.search) {
-        query += ` and lower(products.categoryproduct::text) like lower('%${queryparams.filtercategory}%')`;
-      } else {
-        query += ` where lower(products.categoryproduct::text) like lower('%${queryparams.filtercategory}%')`;
-      }
-    }
-
-    if (queryparams.order == "cheapest") {
-      query += ` order by price asc `;
-    }
-    if (queryparams.order == "priciest") {
-      query += ` order by price desc `;
-    }
-    if (queryparams.order == "oldest") {
-      query += ` order by created_at desc `;
-    }
-    if (queryparams.order == "newest") {
-      query += ` order by created_at asc `;
-    }
-    if (queryparams.order == "name") {
-      query += ` order by product_name asc `;
-    }
-    postgreDb.query(query, (err, result) => {
-      if (err) {
-        console.log(err);
-        return reject(err);
-      }
-      return resolve(result);
-    });
-  });
-};
-const createProduct = (body) => {
-  return new Promise((resolve, reject) => {
-    const query = "insert into products ( product_name, price, image , category_id) values ($1,$2,$3,$4)";
-    const { product_name, price, image, category_id } = body;
-    postgreDb.query(query, [product_name, price, image, category_id], (err, queryResult) => {
-      if (err) {
-        console.log(err);
-        return reject(err);
-      }
-      resolve("CREATE DATA SUCCESS");
-    });
-  });
-};
-const editProduct = (body, params) => {
-  return new Promise((resolve, reject) => {
-    let query = "update products set ";
-    const values = [];
-
-    Object.keys(body).forEach((key, idx, array) => {
-      if (idx === array.length - 1) {
-        query += `${key} = $${idx + 1} where id = $${idx + 2}`;
-        values.push(body[key], params.id);
-        return;
-      }
-      query += `${key} = $${idx + 1},`;
-      values.push(body[key]);
-    });
-    postgreDb
-      .query(query, values)
-      .then(() => {
-        resolve("EDIT DATA SUCCESS");
-      })
-      .catch((err) => {
-        console.log(err);
-        reject(err);
-      });
-  });
-};
-const deleteProduct = (params) => {
-  return new Promise((resolve, reject) => {
-    const query = "delete from products where id = $1";
-
-    postgreDb.query(query, [params.id], (err, result) => {
-      if (err) {
-        console.log(err);
-        return reject(err);
-      }
-      resolve("DELETE DATA SUCCESS");
-    });
-  });
-};
-
 module.exports = {
-  getProduct,
-  createProduct,
-  editProduct,
-  deleteProduct,
+  getProducts: (queryParams) => {
+    return new Promise((resolve, reject) => {
+      let link = "http://localhost:8080/api/v1/products/all?";
+      const { search, page = 1, limit, filter, price, transactions, order } = queryParams;
+      const query = "SELECT * FROM products ORDER BY id LIMIT $1 OFFSET $2";
+
+      if (search) {
+        query += ` where lower(product_name) like lower('%${search}%')`;
+        // link += `search=${search}&`;
+      }
+      if (order) {
+        query += ` where lower(product_name) like lower('%${search}%')`;
+        // link += `search=${search}&`;
+      }
+      if (filter) {
+        if (search) {
+          query += ` and lower(category_name) like lower('%${filter}%')`;
+          // link += `filter=${filter}&`;
+        } else {
+          query += ` where lower(category_name) like lower ('%${filter}%')`;
+          // link += `filter=${queryParams.filter}&`;
+        }
+      }
+      if (order == "newest") {
+        query += ` order by created_at desc`;
+        // link += `sortby=${sortby}&`;
+      }
+      if (order == "oldest") {
+        query += ` order by created_at asc`;
+        // link += `sortby=${sortby}&`;
+      }
+      if (price == "cheapest") {
+        query += ` order by price asc`;
+        // link += `price=${price}&`;
+      }
+      if (price == "pricey") {
+        query += ` order by price desc`;
+        // link += `price=${price}&`;
+      }
+      // if (transactions == "popular") {
+      //   if (filter) {
+      //     query = `select p.id, p.product_name, p.price, c.category_name, p.image, count(tpz.product_id) as sold from products p left join transactions_product_sizes tpz on p.id = tpz.product_id join categories c on p.category_id = c.id where lower(c.category_name) like lower ('%${queryParams.filter}%') group by p.id, p.product_name, p.price, c.category_name, p.image, p.created_at order by sold desc`;
+      //     link += `filter=${queryParams.filter}&transactions=${queryParams.transactions}&`;
+      //   } else {
+      //     query = `select p.id, p.product_name, p.price, c.category_name, p.image, count(tpz.product_id) as sold from products p left join transactions_product_sizes tpz on p.id = tpz.product_id join categories c on p.category_id = c.id group by p.id, p.product_name, p.price, c.category_name, p.image, p.created_at order by sold desc`;
+      //     link += `transactions=${queryParams.transactions}&`;
+      //   }
+      // }
+
+      // start Paginasi
+
+      const offset = (Number(page) - 1) * Number(limit);
+
+      postgreDb
+        .query(query, [Number(limit), offset])
+        .then((result) => {
+          const response = {
+            data: result.rows,
+          };
+
+          //total data
+          postgreDb
+            .query("SELECT COUNT(*) AS total_product FROM products")
+            .then((result) => {
+              const next = Number(page) + Number(1);
+              const prev = Number(page) - Number(1);
+              response.totalData = Number(result.rows[0]["total_product"]);
+              response.totalPage = Math.ceil(response.totalData / Number(limit));
+              response.currentPage = page;
+              response.nextPage = `${link}page=${next}&limit=${limit}`;
+              response.prevPage = `${link}page=${prev}&limit=${limit}`;
+
+              resolve(response);
+            })
+            .catch((err) => {
+              console.log(err);
+              reject({ status: 500, err });
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+          reject({ status: 500, err });
+        });
+    });
+  },
+  getSingleProductFromServer: (id) => {
+    return new Promise((resolve, reject) => {
+      const query = "select * from products where id = $1";
+      postgreDb
+        .query(query, [id])
+        .then((data) => {
+          if (data.rows.length === 0) {
+            return reject({ status: 404, err: "Product Not Found" });
+          }
+          const response = {
+            data: data.rows,
+          };
+          resolve(response);
+        })
+        .catch((err) => {
+          reject({ status: 500, err });
+        });
+    });
+  },
+  findProduct: (query) => {
+    return new Promise((resolve, reject) => {
+      const { category, order, sort } = query;
+      let sqlQuery = "select * from products where lower(category_id) like lower('%' || $1 || '%')";
+      if (order) {
+        sqlQuery += " order by " + sort + " " + order;
+      }
+      postgreDb
+        .query(sqlQuery, [category])
+        .then((result) => {
+          if (result.rows.length === 0) {
+            return reject({ status: 404, err: "Product Not Found" });
+          }
+          const response = {
+            total: result.rowCount,
+            data: result.rows,
+          };
+          resolve(response);
+        })
+        .catch((err) => {
+          reject({ status: 500, err });
+        });
+    });
+  },
+  searchProduct: (query) => {
+    return new Promise((resolve, reject) => {
+      const { menu, order, sort } = query;
+      let sqlQuery = "SELECT * FROM products WHERE lower(product_name) LIKE lower('%' || $1 || '%')";
+      if (order) {
+        sqlQuery += " order by " + sort + " " + order;
+      }
+      postgreDb
+        .query(sqlQuery, [menu])
+        .then((result) => {
+          if (result.rows.length === 0) {
+            return reject({ status: 404, err: "Product Not Found" });
+          }
+          const response = {
+            total: result.rowCount,
+            data: result.rows,
+          };
+          resolve(response);
+        })
+        .catch((err) => {
+          reject({ status: 500, err });
+        });
+    });
+  },
+  findPromotion: (query) => {
+    return new Promise((resolve, reject) => {
+      const { code, order, sort } = query;
+      let sqlQuery = "select * from promos where lower(code) like lower('%' || $1 || '%')";
+      if (order) {
+        sqlQuery += " order by " + sort + " " + order;
+      }
+      postgreDb
+        .query(sqlQuery, [code])
+        .then((result) => {
+          if (result.rows.length === 0) {
+            return reject({ status: 404, err: "Promo Not Found" });
+          }
+          const response = {
+            total: result.rowCount,
+            data: result.rows,
+          };
+          resolve(response);
+        })
+        .catch((err) => {
+          reject({ status: 500, err });
+        });
+    });
+  },
+  createNewProduct: (body, picture) => {
+    return new Promise((resolve, reject) => {
+      const { product_name, category_id, price, image } = body;
+      // const id = uuidV4();
+      const query = "INSERT INTO products( product_name, category_id, price, image) VALUES ($1, $2, $3, $4) RETURNING *";
+      postgreDb
+        .query(query, [product_name, category_id, price, image])
+        .then(({ rows }) => {
+          const response = {
+            data: rows[0],
+          };
+          resolve(response);
+        })
+        .catch((err) => reject({ status: 500, err }));
+    });
+  },
+  deleteProduct: (id) => {
+    return new Promise((resolve, reject) => {
+      const query = "DELETE FROM products where products.id = $1";
+      postgreDb
+        .query(query, [id])
+        .then((data) => {
+          const response = {
+            data,
+          };
+
+          resolve(response);
+        })
+        .catch((err) => {
+          reject({ status: 500, err });
+        });
+    });
+  },
+  updateProduct: (id, body) => {
+    return new Promise((resolve, reject) => {
+      const { product_name, category_id, price, image } = body;
+      const sqlQuery = "UPDATE products SET menu = $1, category = $2, size = $3, price = $4, image = $5, WHERE products.id = $5";
+      postgreDb
+        .query(sqlQuery, [product_name, category_id, price, image])
+        .then((data) => {
+          const response = {
+            data,
+          };
+
+          resolve(response);
+        })
+        .catch((err) => {
+          reject({ status: 500, err });
+        });
+    });
+  },
 };

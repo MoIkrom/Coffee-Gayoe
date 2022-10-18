@@ -77,3 +77,106 @@ module.exports = {
   editPromo,
   deletePromo,
 };
+
+// const postgreDb = require("../config/postgre");
+// // const { v4: uuidV4 } = require("uuid");
+
+// module.exports = {
+//   getPromotion: (query) => {
+//     return new Promise((resolve, reject) => {
+//       const { page = 1, limit = 3 } = query;
+//       const offset = Number(page - 1) * Number(limit);
+
+//       postgreDb
+//         .query("SELECT * FROM promos ORDER BY id LIMIT $1 OFFSET $2", [Number(limit), offset])
+//         .then((result) => {
+//           const response = {
+//             data: result.rows,
+//           };
+//           postgreDb
+//             .query("SELECT COUNT(*) AS total_promotion FROM promos")
+//             .then((result) => {
+//               response.totalData = Number(result.rows[0]["total_promo"]);
+//               response.totalPage = Math.ceil(response.totalData / Number(limit));
+//               resolve(response);
+//             })
+//             .catch((err) => {
+//               reject({ status: 500, err });
+//             });
+//         })
+//         .catch((err) => {
+//           reject({ status: 500, err });
+//         });
+//     });
+//   },
+//   getSinglePromotionFromServer: (id) => {
+//     return new Promise((resolve, reject) => {
+//       const query = "select * from promos where id = $1";
+//       postgreDb
+//         .query(query, [id])
+//         .then((data) => {
+//           if (data.rows.length === 0) {
+//             return reject({ status: 404, err: "Promo Not Found" });
+//           }
+//           const response = {
+//             data: data.rows,
+//           };
+//           resolve(response);
+//         })
+//         .catch((err) => {
+//           reject({ status: 500, err });
+//         });
+//     });
+//   },
+//   createNewPromotion: (body, picture) => {
+//     return new Promise((resolve, reject) => {
+//       const { code, discount } = body;
+//       // const id = uuidV4();
+//       const query = "INSERT INTO promos(code,discount) VALUES ($1, $2) RETURNING *";
+//       postgreDb
+//         .query(query, [code, discount])
+//         .then(({ rows }) => {
+//           const response = {
+//             data: rows[0],
+//           };
+//           resolve(response);
+//         })
+//         .catch((err) => reject({ status: 500, err }));
+//     });
+//   },
+//   deletePromotion: (id) => {
+//     return new Promise((resolve, reject) => {
+//       const query = "DELETE FROM promos where promos.id = $1";
+//       postgreDb
+//         .query(query, [id])
+//         .then((data) => {
+//           const response = {
+//             data,
+//           };
+
+//           resolve(response);
+//         })
+//         .catch((err) => {
+//           reject({ status: 500, err });
+//         });
+//     });
+//   },
+//   updatePromotion: (id, body) => {
+//     return new Promise((resolve, reject) => {
+//       const { code, discount } = body;
+//       const sqlQuery = "UPDATE promos SET promotion_code = $1, detail_promo = $2, discount = $3 WHERE promos.id = $4";
+//       postgreDb
+//         .query(sqlQuery, [code, discount, id])
+//         .then((data) => {
+//           const response = {
+//             data,
+//           };
+
+//           resolve(response);
+//         })
+//         .catch((err) => {
+//           reject({ status: 500, err });
+//         });
+//     });
+//   },
+// };
