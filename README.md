@@ -17,9 +17,8 @@ Authentic Coffee from Aceh
 
 | Endpoint        |            Method             | Info         |
 | --------------- | :---------------------------: | :----------- |
-| /auth           |            `POST`             | Auth         |
+| /auth           | `POST`               `DELETE` | Auth         |
 | /users          | `POST` `GET` `PATCH` `DELETE` | Users        |
-| /users/profile  |      `PATCH`                  | Profiles     |
 | /products       | `POST` `GET` `PATCH` `DELETE` | Products     |
 | /promos         | `POST` `GET` `PATCH` `DELETE` | Promos       |
 | /transaction    | `POST` `GET` `PATCH` `DELETE` | Transactions |
