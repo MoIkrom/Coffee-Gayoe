@@ -50,7 +50,8 @@ const search = async (req, res) => {
   try {
     const response = await productRepo.searchProduct(req.query);
     res.status(200).json({
-      result: response.rows,
+      msg: "Success Get Data",
+      data: response.rows,
     });
   } catch (error) {
     res.status(500).json({
