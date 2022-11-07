@@ -1,70 +1,171 @@
-const usersRepo = require("../repo/R_users");
+const repoUsers = require("../repo/R_users");
+const sendResponse = require("../helpers/response");
 
-module.exports = {
-  register: (req, res) => {
-    const { body } = req;
-    usersRepo
-      .register(body)
-      .then((response) => {
-        res.status(201).json({
-          msg: "Register Success",
-          data: {
-            ...response.rows[0],
-            email: body.email,
-            display_name: body.display_name,
-          },
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({ msg: "Internal Server Error", error: err.message });
-      });
-  },
-  editPassword: (req, res) => {
-    const { body } = req;
-    usersRepo
-      .editPassword(body)
-      .then((response) => {
-        res.status(200).json({
-          msg: "Password has been changed",
-          data: null,
-        });
-      })
-      .catch((objErr) => {
-        const statusCode = objErr.statusCode || 500;
-        res.status(statusCode).json({ msg: objErr.err.message });
-      });
-  },
-  createNewProfile: async (req, res) => {
-    console.log(req);
-    usersRepo
-      .createProfile(req.body, req.userPayload)
-      .then((response) => {
-        res.status(201).json({
-          msg: " Success Create Profile",
-          data: {
-            ...response.row[0],
-            first_name: body.first_name,
-            last_name: body.last_name,
-            address: body.address,
-          },
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({ msg: "Internal Server Error", error: err.message });
-      });
-  },
-  get: async (req, res) => {
-    console.log(req.userPayload);
-    try {
-      const response = await usersRepo.getUsers();
-      res.status(201).json({
-        result: response.rows,
-      });
-    } catch (err) {
-      res.status(500).json({ msg: "Internal Server Error", error: err.message });
-    }
-  },
+const get = async (req, res) => {
+  try {
+    const response = await repoUsers.getUsers();
+    res.status(200).json({
+      result: response.rows,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal server Error",
+    });
+  }
 };
+getUserById: (req, res) => {
+  const id = req.params.id;
+  getSingleUserFromServer(id)
+    .then(({ data }) => {
+      res.status(200).json({
+        data,
+        err: null,
+      });
+    })
+    .catch((error) => {
+      const { err, status } = error;
+      errorResponse(res, status, err);
+    });
+};
+const create = async (req, res) => {
+  try {
+    const response = await repoUsers.createUsers(req.body);
+    sendResponse.success(res, 200, {
+      msg: "create success",
+      data: response.rows,
+    });
+  } catch (err) {
+    sendResponse.error(res, 500, "Internal Server Error");
+  }
+};
+const edit = async (req, res) => {
+  try {
+    if (req.file) {
+      req.body.image = req.file.path;
+    }
+    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id);
+    response.rows[0].image = `/images/${req.file.filename}`;
+    sendResponse.success(res, 200, {
+      msg: "edit success",
+      data: response.rows,
+    });
+  } catch (err) {
+    sendResponse.error(res, 500, "Internal Server Error");
+  }
+};
+const editPassword = async (req, res) => {
+  try {
+    const response = await repoUsers.editPassword(req.body, req.userPayload.user_id);
+    sendResponse.success(res, 200, {
+      msg: (response.text = "Password has been changed"),
+      data: null,
+    });
+  } catch (obJerr) {
+    const statusCode = obJerr.statusCode || 500;
+    sendResponse.error(res, statusCode, { msg: obJerr.err.message });
+  }
+};
+const drop = async (req, res) => {
+  try {
+    const result = await repoUsers.deleteUsers(req.params);
+    sendResponse.success(res, 200, {
+      msg: "Delete Success",
+      data: result.rows,
+    });
+  } catch (obJerr) {
+    const statusCode = obJerr.statusCode || 500;
+    sendResponse.error(res, statusCode, " Internal Server Error");
+  }
+};
+const UsersControler = {
+  get,
+  create,
+  edit,
+  editPassword,
+  drop,
+};
+
+module.exports = UsersControler;
+
+// ============================================
+
+// const usersRepo = require("../repo/R_users");
+
+// module.exports = {
+//   register: (req, res) => {
+//     const { body } = req;
+//     usersRepo
+//       .register(body)
+//       .then((response) => {
+//         res.status(201).json({
+//           msg: "Register Success",
+//           data: {
+//             ...response.rows[0],
+//             email: body.email,
+//             display_name: body.display_name,
+//           },
+//         });
+//       })
+//       .catch((err) => {
+//         res.status(500).json({ msg: "Internal Server Error", error: err.message });
+//       });
+//   },
+//   editPassword: (req, res) => {
+//     const { body } = req;
+//     usersRepo
+//       .editPassword(body)
+//       .then((res) => {
+//         res.status(200).json({
+//           msg: "Password has been changed",
+//           data: null,
+//         });
+//       })
+//       .catch((objErr) => {
+//         const statusCode = objErr.statusCode || 500;
+//         res.status(statusCode).json({ msg: objErr.err.message });
+//       });
+//   },
+//   createNewProfile: async (req, res) => {
+//     console.log(req);
+//     usersRepo
+//       .createProfile(req.body, req.userPayload)
+//       .then((response) => {
+//         res.status(201).json({
+//           msg: " Success Create Profile",
+//           data: {
+//             ...response.row[0],
+//             first_name: body.first_name,
+//             last_name: body.last_name,
+//             address: body.address,
+//           },
+//         });
+//       })
+//       .catch((err) => {
+//         res.status(500).json({ msg: "Internal Server Error", error: err.message });
+//       });
+//   },
+//   get: async (req, res) => {
+//     console.log(req.userPayload);
+//     try {
+//       const response = await usersRepo.getUsers();
+//       res.status(201).json({
+//         result: response.rows,
+//       });
+//     } catch (err) {
+//       res.status(500).json({ msg: "Internal Server Error", error: err.message });
+//     }
+//   },
+//   getById: async (req, res) => {
+//     try {
+//       const response = await usersRepo.getUsersByID(id);
+//       res.status(201).json({
+//         result: response.rows,
+//       });
+//     } catch (err) {
+//       res.status(500).json({ msg: "Internal Server Error", error: err.message });
+//     }
+//   },
+// };
 
 // const { response } = require("express");
 // const usersRepo = require("../repo/R_users");

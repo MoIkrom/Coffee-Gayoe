@@ -1,14 +1,26 @@
 const authRouter = require("express").Router();
-
 const authController = require("../controllers/C_authentication");
-
-// login
+//login
 authRouter.post("/", authController.login);
-// // logout
+// logout
+// authRouter.delete("/", isLogin(), authController.logout);
+
+module.exports = authRouter;
+
+// =================================================================
+
+// const authRouter = require("express").Router();
+
+// const { login } = require("../controllers/C_authentication");
+
+// // login
+// authRouter.post("/", login);
+// // // logout
+// // authRouter.delete("/", logout);
 // authRouter.delete("/", (req, res) => {
 //   res.json({
-//     msg: "Berhasil Logout",
+//     msg: " Logout Success",
 //   });
 // });
 
-module.exports = authRouter;
+// module.exports = authRouter;

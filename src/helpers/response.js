@@ -1,16 +1,8 @@
 module.exports = {
-  successResponse: (res, status, data, meta) => {
-    res.status(status).json({
-      err: null,
-      data,
-      meta,
-    });
+  success: (res, status, result) => {
+    res.status(status).json({ result });
   },
-
-  errorResponse: (res, status, err) => {
-    res.status(status).json({
-      data: [],
-      err,
-    });
+  error: (res, status, msg) => {
+    res.status(status).json({ msg });
   },
 };

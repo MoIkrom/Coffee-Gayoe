@@ -9,6 +9,8 @@ const mainRouter = require("./src/routes/rt_main");
 // import morgan
 const morgan = require("morgan");
 
+const cors = require("cors");
+
 // init express application
 const server = express();
 const PORT = 8080;
@@ -22,10 +24,12 @@ postgreDb
     // init morgan
     server.use(morgan(":method :url :status :res[content-length] - :response-time ms"));
 
+    server.use(express.static("./public"));
     // init parser body
     server.use(express.json());
 
     server.use(express.urlencoded({ extended: false }));
+    server.use(cors());
 
     // mainRouter
     server.use(mainRouter);
@@ -38,6 +42,39 @@ postgreDb
   .catch((err) => {
     console.log(err);
   });
+
+// ====================================================================
+
+// const express = require('express');
+// const server = express();
+// const morgan = require('morgan');
+// const PORT = 7070;
+
+// //import database yang ada
+// const postgreDB = require('./src/config/postgre.js');
+// //import mainRouter
+// const mainRouter = require('./src/routes/main.js');
+
+// postgreDB
+//   .connect()
+//   .then(() => {
+//     console.log('Database Connect');
+//     server.use(express.json());
+//     server.use(express.urlencoded({ extended: false }));
+//     server.use(express.static('./public'));
+//     server.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+//     //semua request ke server didelegasikan ke mainRouter
+//     server.use(mainRouter);
+//     //server siap menerima request di port
+//     server.listen(PORT, () => {
+//       console.log(`Server is running at port ${PORT}`);
+//     });
+//   })
+
+//   //menangkap jika dijalankan error
+//   .catch((err) => {
+//     console.log(err);
+//   });
 
 // ====================================================
 
