@@ -2,22 +2,60 @@ const postgreDb = require("../config/postgre");
 
 const createProduct = (body, file) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into products (product_name, price, stock, size, category, image, description) values ($1,$2,$3,$4,$5,$6,$7) returning *";
+    let image = null;
+    if (file) {
+      image = file.url;
+    }
+    const query = "insert into products (product_name, price, stock, size, category, image, description) values ($1,$2,$3,$4,$5,$6,$7) returning id";
     const { product_name, price, stock, size, category, description } = body;
     postgreDb.query(query, [product_name, price, stock, size, category, file, description], (err, queryResult) => {
       if (err) {
         console.log(err);
-        return reject(err);
+        if (file) {
+          deleteFile(file.path);
+        }
+        return resolve(systemError());
       }
-      resolve(queryResult);
+      resolve(
+        queryResult({
+          id: queryResult.rows[0].id,
+          name: product_name,
+          price: price,
+          category: category,
+          description: description,
+          image: image,
+        })
+      );
     });
   });
 };
 
-const editProduct = (body, params) => {
+const editProduct = (body, params, file) => {
   return new Promise((resolve, reject) => {
+    const { product_name, price, category, description } = body;
     let query = "update products set ";
     const values = [];
+    let imageProduct = "";
+    let data = {
+      id: params.id,
+    };
+
+    if (file) {
+      imageProduct = file.url;
+      if (!product_name && !price && !category && !description) {
+        if (file && file.resource_type == "image") {
+          query += `image = '${imageProduct}',updated_at = now() where id = $1`;
+          values.push(params.id);
+          data["image"] = imageProduct;
+        }
+      } else {
+        if (file && file.resource_type == "image") {
+          query += `image = '${imageProduct}',`;
+          data["image"] = imageProduct;
+        }
+      }
+    }
+
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
         query += `${key} = $${idx + 1} where id = $${idx + 2} returning *`;

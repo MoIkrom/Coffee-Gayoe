@@ -3,9 +3,9 @@ const sendResponse = require("../helpers/response");
 
 const create = async (req, res) => {
   try {
-    const image = `/images/${req.file.filename}`;
+    // const image = `/images/${req.file.filename}`;
 
-    const response = await productRepo.createProduct(req.body, image);
+    const response = await productRepo.createProduct(req.body, req.file);
     sendResponse.success(res, 200, {
       msg: (response.text = "Create Succes"),
       data: response.rows,
@@ -18,14 +18,14 @@ const create = async (req, res) => {
 
 const edit = async (req, res) => {
   try {
-    if (req.file) {
-      const image = `/images/${req.file.filename}`;
-      req.body.image = image;
-    }
+    // if (req.file) {
+    //   const image = `/images/${req.file.filename}`;
+    //   req.body.image = image;
+    // }
 
-    const response = await productRepo.editProduct(req.body, req.params);
-    const image = `/images/${req.file.filename}`;
-    response.rows[0].image = image;
+    const response = await productRepo.editProduct(req.body, req.params, req.file);
+    // const image = `/images/${req.file.filename}`;
+    // response.rows[0].image = image;
     sendResponse.success(res, 200, {
       msg: "Product has been change",
       data: response.rows,

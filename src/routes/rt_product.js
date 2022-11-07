@@ -3,9 +3,11 @@ const multer = require("multer");
 const productRouter = express.Router();
 const isLogin = require("../middlewares/isLogin");
 const allowedRole = require("../middlewares/M_allowedRole");
-const { diskUpload } = require("../middlewares/M_upload");
+const { memoryUpload, errorHandler } = require("../middlewares/M_upload");
+const cloudinary = require("../middlewares/M_cloudinary");
+
 function uploadFile(req, res, next) {
-  const upload = diskUpload.single("image");
+  const upload = memoryUpload.single("image");
 
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
@@ -24,8 +26,8 @@ function uploadFile(req, res, next) {
 const { create, edit, drop, search } = require("../controllers/C_product");
 
 productRouter.get("/", search);
-productRouter.post("/", isLogin(), allowedRole("admin"), uploadFile, create);
-productRouter.patch("/:id", isLogin(), allowedRole("admin"), uploadFile, edit);
+productRouter.post("/", isLogin(), allowedRole("admin"), uploadFile, cloudinary, create);
+productRouter.patch("/:id", isLogin(), allowedRole("admin"), uploadFile, cloudinary, edit);
 productRouter.delete("/:id", isLogin(), allowedRole("admin"), drop);
 module.exports = productRouter;
 
