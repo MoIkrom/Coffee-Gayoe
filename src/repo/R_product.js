@@ -2,30 +2,19 @@ const postgreDb = require("../config/postgre");
 
 const createProduct = (body, file) => {
   return new Promise((resolve, reject) => {
-    let image = null;
-    if (file) {
-      image = file.url;
-    }
-    const query = "insert into products (product_name, price, stock, size, category, image, description) values ($1,$2,$3,$4,$5,$6,$7) returning id";
+    // let image = null;
+    // if (file) {
+    //   image = file.secure_url;
+    // }
+    const query = "insert into products (product_name, price, stock, size, category, image, description) values ($1,$2,$3,$4,$5,$6,$7) returning *";
     const { product_name, price, stock, size, category, description } = body;
     postgreDb.query(query, [product_name, price, stock, size, category, file, description], (err, queryResult) => {
       if (err) {
         console.log(err);
-        if (file) {
-          deleteFile(file.path);
-        }
-        return resolve(systemError());
+
+        return reject(err);
       }
-      resolve(
-        queryResult({
-          id: queryResult.rows[0].id,
-          name: product_name,
-          price: price,
-          category: category,
-          description: description,
-          image: image,
-        })
-      );
+      resolve(queryResult);
     });
   });
 };
@@ -106,7 +95,7 @@ const searchProduct = (queryparams) => {
       if (queryparams.search) {
         query += `and lower(category) like lower('${queryparams.category}')`;
       } else {
-        query += `where lower(category) like lower('${queryparams.category}')`;
+        query += `where lower(category) = lower('${queryparams.category}')`;
       }
     }
 

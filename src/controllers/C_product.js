@@ -5,7 +5,8 @@ const create = async (req, res) => {
   try {
     // const image = `/images/${req.file.filename}`;
 
-    const response = await productRepo.createProduct(req.body, req.file);
+    const response = await productRepo.createProduct(req.body, req.file.secure_url);
+    console.log(req.file.secure_url);
     sendResponse.success(res, 200, {
       msg: (response.text = "Create Succes"),
       data: response.rows,
