@@ -93,26 +93,26 @@ const searchProduct = (queryparams) => {
     // Filter category
     if (queryparams.category) {
       if (queryparams.search) {
-        query += `and lower(category) like lower('${queryparams.category}')`;
+        query += `and lower(category) = lower('${queryparams.category}')`;
       } else {
         query += `where lower(category) = lower('${queryparams.category}')`;
       }
     }
 
-    if (queryparams.sort == "low") {
+    if (queryparams.sort == "expensive") {
       query += "order by price asc";
     }
-    if (queryparams.sort == "high") {
+    if (queryparams.sort == "cheapest") {
       query += "order by price desc";
     }
     if (queryparams.sort == "newest") {
-      query += "order by created_at asc";
-    }
-    if (queryparams.sort == "lates") {
       query += "order by created_at desc";
     }
+    if (queryparams.sort == "oldest") {
+      query += "order by created_at asc";
+    }
     if (queryparams.sort == "favorite") {
-      query = "select products *, transactions.qty from products inner join transactions on transactions.product_id = products.id order by transactions.qty desc";
+      query = "select products.* ,transactions.qty from products left join transactions on transactions.product_id = products.id order by transactions.qty desc";
     }
 
     // const page = Number(queryparams.page);

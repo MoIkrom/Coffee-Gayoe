@@ -43,7 +43,7 @@ module.exports = {
                 console.log(err);
                 return reject({ err });
               }
-              return resolve({ token, role: payload.role, name: payload.name });
+              return resolve({ token, email, role: payload.role, name: payload.name });
             }
           );
         });
