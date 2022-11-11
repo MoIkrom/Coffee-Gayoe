@@ -85,7 +85,7 @@ const searchProduct = (queryparams) => {
   return new Promise((resolve, reject) => {
     let query = "select products.*, promos.code, promos.discount from products full join promos on promos.product_id = products.id";
 
-    let link = `${process.env.BACKEND_HOST}api/v1/product?`;
+    let link = `https://coffee-gayoe.vercel.app/api/v1/product?`;
     let queryLimit = "";
 
     // console.log(queryparams);
