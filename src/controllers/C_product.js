@@ -50,9 +50,16 @@ const drop = async (req, res) => {
 const search = async (req, res) => {
   try {
     const response = await productRepo.searchProduct(req.query);
+    console.log(response);
     res.status(200).json({
       msg: "Success Get Data",
-      data: response.rows,
+      data: response.data,
+      meta: {
+        dataCount: response.dataCount,
+        next: response.next,
+        prev: response.prev,
+        totalPage: response.totalPage,
+      },
     });
   } catch (error) {
     res.status(500).json({

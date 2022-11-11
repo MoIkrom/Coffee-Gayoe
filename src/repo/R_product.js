@@ -83,49 +83,125 @@ const deleteProduct = (params) => {
 
 const searchProduct = (queryparams) => {
   return new Promise((resolve, reject) => {
-    let query = "select products.*, promos.code, promos.discount from products full join promos on promos.product_id = products.id ";
+    let query = "select products.*, promos.code, promos.discount from products full join promos on promos.product_id = products.id";
 
+    let link = `${process.env.BACKEND_HOST}api/v1/product?`;
+    let queryLimit = "";
+
+    // console.log(queryparams);
     // Search name product
     if (queryparams.search) {
-      query += `where lower(product_name) like lower('%${queryparams.search}%')`;
+      query += ` where lower(product_name) like lower('%${queryparams.search}%')`;
+      link += `product_name=${queryparams.search}&`;
     }
 
     // Filter category
     if (queryparams.category) {
       if (queryparams.search) {
         query += `and lower(category) = lower('${queryparams.category}')`;
+        link += `category=${queryparams.category}&`;
       } else {
-        query += `where lower(category) = lower('${queryparams.category}')`;
+        query += ` where lower(category) = lower('${queryparams.category}')`;
+        link += `category=${queryparams.category}&`;
       }
     }
 
     if (queryparams.sort == "expensive") {
       query += "order by price asc";
+      link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "cheapest") {
       query += "order by price desc";
+      link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "newest") {
       query += "order by created_at desc";
+      link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "oldest") {
       query += "order by created_at asc";
+      link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "favorite") {
       query = "select products.* ,transactions.qty from products left join transactions on transactions.product_id = products.id order by transactions.qty desc";
+      link += `sort=${queryparams.sort}&`;
     }
 
     // const page = Number(queryparams.page);
     // const limit = Number(queryparams.limit);
     // const offset = (page - 1) * limit;
     // query += ` limit ${limit} offset ${offset}`;
-    console.log(query);
+
+    // console.log(query);
+    let values = [];
+    if (queryparams.page && queryparams.limit) {
+      let page = parseInt(queryparams.page);
+      let limit = parseInt(queryparams.limit);
+      let offset = (page - 1) * limit;
+      queryLimit = query + ` limit $1 offset $2`;
+      values.push(limit, offset);
+    } else {
+      queryLimit = query;
+    }
+    // postgreDb.query(query, (err, result) => {
+    //   if (err) {
+    //     console.log(err);
+    //     return reject(err);
+    //   }
+    //   return resolve(result);
+    // });
+    // console.log(query);
     postgreDb.query(query, (err, result) => {
-      if (err) {
-        console.log(err);
-        return reject(err);
-      }
-      return resolve(result);
+      postgreDb.query(queryLimit, values, (err, queryresult) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+        // console.log(queryresult);
+        // console.log(queryLimit);
+        if (queryresult.rows.length == 0) return reject(new Error("Product Not Found"));
+        let resNext = null;
+        let resPrev = null;
+        if (queryparams.page && queryparams.limit) {
+          let page = parseInt(queryparams.page);
+          let limit = parseInt(queryparams.limit);
+          let start = (page - 1) * limit;
+          let end = page * limit;
+          let next = "";
+          let prev = "";
+          const dataNext = Math.ceil(result.rowCount / limit);
+          if (start <= result.rowCount) {
+            next = page + 1;
+          }
+          if (end > 0) {
+            prev = page - 1;
+          }
+          if (parseInt(next) <= parseInt(dataNext)) {
+            resNext = `${link}page=${next}&limit=${limit}`;
+          }
+          if (parseInt(prev) !== 0) {
+            resPrev = `${link}page=${prev}&limit=${limit}`;
+          }
+          let meta = {
+            dataCount: result.rowCount,
+            next: resNext,
+            prev: resPrev,
+            totalPage: Math.ceil(result.rowCount / limit),
+            data: queryresult.rows,
+          };
+          return resolve(meta);
+          // return resolve(queryresult);
+        }
+        let meta = {
+          dataCount: result.rowCount,
+          next: resNext,
+          prev: resPrev,
+          totalPage: null,
+          data: queryresult.rows,
+        };
+        return resolve(meta);
+        // return resolve(queryresult);
+      });
     });
   });
 };
