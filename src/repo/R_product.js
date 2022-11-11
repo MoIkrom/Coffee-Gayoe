@@ -110,6 +110,10 @@ const searchProduct = (queryparams) => {
       query += "order by price asc";
       link += `sort=${queryparams.sort}&`;
     }
+    if (queryparams.sort == "name") {
+      query += "order by product_name asc";
+      link += `sort=${queryparams.sort}&`;
+    }
     if (queryparams.sort == "cheapest") {
       query += "order by price desc";
       link += `sort=${queryparams.sort}&`;
