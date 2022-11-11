@@ -186,13 +186,14 @@ const searchProduct = (queryparams) => {
           if (parseInt(prev) !== 0) {
             resPrev = `${link}page=${prev}&limit=${limit}`;
           }
+          let totalPage = Math.ceil(result.rowCount / limit);
           let meta = {
             dataCount: result.rowCount,
             next: resNext,
             prev: resPrev,
-            totalPage: Math.ceil(result.rowCount / limit),
+            totalPage: totalPage,
             data: queryresult.rows,
-            currentPage: page,
+            currentPage: `page ${page} of ${totalPage} `,
           };
           return resolve(meta);
           // return resolve(queryresult);
