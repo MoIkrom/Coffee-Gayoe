@@ -192,6 +192,7 @@ const searchProduct = (queryparams) => {
             prev: resPrev,
             totalPage: Math.ceil(result.rowCount / limit),
             data: queryresult.rows,
+            currentPage: page,
           };
           return resolve(meta);
           // return resolve(queryresult);
@@ -202,7 +203,6 @@ const searchProduct = (queryparams) => {
           prev: resPrev,
           totalPage: null,
           data: queryresult.rows,
-          currentPage: page,
         };
         return resolve(meta);
         // return resolve(queryresult);
