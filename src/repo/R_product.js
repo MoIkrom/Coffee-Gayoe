@@ -202,6 +202,7 @@ const searchProduct = (queryparams) => {
           prev: resPrev,
           totalPage: null,
           data: queryresult.rows,
+          currentPage: page,
         };
         return resolve(meta);
         // return resolve(queryresult);

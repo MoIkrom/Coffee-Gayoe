@@ -59,6 +59,7 @@ const search = async (req, res) => {
         next: response.next,
         prev: response.prev,
         totalPage: response.totalPage,
+        currentPage: response.currentPage,
       },
     });
   } catch (error) {
