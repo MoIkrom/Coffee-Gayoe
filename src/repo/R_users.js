@@ -32,10 +32,32 @@ const createUsers = (body) => {
     });
   });
 };
-const editUsers = (body, token) => {
+const editUsers = (body, token, file) => {
+  // console.log(token);
   return new Promise((resolve, reject) => {
+    const { firstname, lastname, username, gender, addres, display_name, image } = body;
     let query = "update users set ";
     const values = [];
+    let imageProfile = "";
+    let data = {
+      id: token,
+    };
+    if (file) {
+      imageProfile = file.url;
+      if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
+        if (file && file.resource_type == "image") {
+          query += `image = '${imageProfile}',updated_at = now() where id = $1`;
+          values.push(token);
+          data["image"] = imageProfile;
+        }
+      } else {
+        if (file && file.resource_type == "image") {
+          query += `image = '${imageProfile}',`;
+          data["image"] = imageProfile;
+        }
+      }
+    }
+
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
         query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, display_name, gender, addres, image`;
@@ -44,7 +66,7 @@ const editUsers = (body, token) => {
       }
       query += `${key} = $${idx + 1},`;
       values.push(body[key]);
-      console.log(values);
+      // console.log(values);
     });
     postgreDb
       .query(query, values)
@@ -111,19 +133,21 @@ const deleteUsers = (params) => {
     });
   });
 };
-// getUsersById: (token) => {
-//   return new Promise((resolve, reject) => {
-//     const query = "select * from profiles where id =$1";
-//     const payload = req.userPayload;
-//     postgreDb.query(query, [token], (error, result) => {
-//       if (data.rows.length === 0) return reject(error, { status: 404, err: "User Not Found" });
-//       const response = {
-//         data: data.rows,
-//       };
-//       return resolve(response);
-//     });
-//   });
-// };
+const getUsersById = (token) => {
+  // console.log(token);
+  return new Promise((resolve, reject) => {
+    const query = "select * from users where id =$1";
+    // const payload = req.userPayload;
+    // console.log(token);
+    postgreDb.query(query, [token], (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(result);
+    });
+  });
+};
 
 const repousers = {
   getUsers,
@@ -131,7 +155,7 @@ const repousers = {
   editPassword,
   editUsers,
   deleteUsers,
-  // getUsersById,
+  getUsersById,
 };
 
 module.exports = repousers;

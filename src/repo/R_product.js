@@ -83,7 +83,7 @@ const deleteProduct = (params) => {
 
 const searchProduct = (queryparams) => {
   return new Promise((resolve, reject) => {
-    let query = "select products.*, promos.code, promos.discount from products full join promos on promos.product_id = products.id";
+    let query = "select products.*, promos.code, promos.discount from products full join promos on promos.product_id = products.id ";
 
     let link = `https://coffee-gayoe.vercel.app/api/v1/product?`;
     let queryLimit = "";
@@ -154,7 +154,7 @@ const searchProduct = (queryparams) => {
     //   }
     //   return resolve(result);
     // });
-    // console.log(query);
+    console.log(query);
     postgreDb.query(query, (err, result) => {
       postgreDb.query(queryLimit, values, (err, queryresult) => {
         if (err) {

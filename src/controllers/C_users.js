@@ -13,19 +13,18 @@ const get = async (req, res) => {
     });
   }
 };
-getUserById: (req, res) => {
-  const id = req.params.id;
-  getSingleUserFromServer(id)
-    .then(({ data }) => {
-      res.status(200).json({
-        data,
-        err: null,
-      });
-    })
-    .catch((error) => {
-      const { err, status } = error;
-      errorResponse(res, status, err);
+const getProfile = async (req, res) => {
+  // console.log(userPayload);
+  try {
+    const response = await repoUsers.getUsersById(req.userPayload.user_id);
+    // console.log(response);
+    sendResponse.success(res, 200, {
+      result: response.rows,
     });
+  } catch (err) {
+    console.log(err);
+    sendResponse.error(res, 500, "Server Internal Error");
+  }
 };
 const create = async (req, res) => {
   try {
@@ -35,18 +34,20 @@ const create = async (req, res) => {
       data: response.rows,
     });
   } catch (err) {
+    console.log(err);
     sendResponse.error(res, 500, "Internal Server Error");
   }
 };
 const edit = async (req, res) => {
   try {
-    if (req.file) {
-      req.body.image = req.file.path;
-    }
-    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id);
-    response.rows[0].image = `/images/${req.file.filename}`;
+    // if (req.file) {
+    //   req.body.image = req.file.path;
+    // }
+    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file);
+    // console.log(response);
+    // response.rows[0].image = `/images/${req.file.filename}`;
     sendResponse.success(res, 200, {
-      msg: "edit success",
+      msg: "edit Profile success",
       data: response.rows,
     });
   } catch (err) {
@@ -83,6 +84,7 @@ const UsersControler = {
   edit,
   editPassword,
   drop,
+  getProfile,
 };
 
 module.exports = UsersControler;
