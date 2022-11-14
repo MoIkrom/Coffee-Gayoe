@@ -35,7 +35,7 @@ module.exports = {
             payload,
             process.env.SECRET_KEY,
             {
-              expiresIn: "5m",
+              expiresIn: "1d",
               issuer: process.env.ISSUER,
             },
             (err, token) => {
