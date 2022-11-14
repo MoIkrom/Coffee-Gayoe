@@ -11,6 +11,7 @@ const authRouter = require("./rt_authentication");
 const prefix = "/api/v1";
 const { memoryUpload, errorHandler } = require("../middlewares/M_upload");
 const cloudinaryUploader = require("../middlewares/M_cloudinary");
+// const cloudinaryUploaderProfile = require("../middlewares/M_cloudinary_profile");
 
 //import middleware
 // const imageUpload = require('../middleware/upload');

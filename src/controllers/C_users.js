@@ -43,7 +43,7 @@ const edit = async (req, res) => {
     // if (req.file) {
     //   req.body.image = req.file.path;
     // }
-    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file);
+    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file.secure_url);
     // console.log(response);
     // response.rows[0].image = `/images/${req.file.filename}`;
     sendResponse.success(res, 200, {
