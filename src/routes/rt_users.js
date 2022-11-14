@@ -28,7 +28,7 @@ function uploadFile(req, res, next) {
 }
 
 usersRouter.get("/", isLogin(), allowedRole("admin"), get);
-usersRouter.get("/profile", isLogin(), getProfile);
+usersRouter.get("/profile", isLogin(), allowedRole("user"), getProfile);
 usersRouter.post("/", validate.body("email", "password", "phone_number"), create);
 usersRouter.patch("/editpassword", isLogin(), allowedRole("user", "admin"), editPassword);
 usersRouter.patch("/", isLogin(), allowedRole("user"), uploadFile, cloudinary, edit);

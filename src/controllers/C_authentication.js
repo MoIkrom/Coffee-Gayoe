@@ -21,8 +21,8 @@ module.exports = {
       .logout(req.userPayload)
       .then((response) => {
         success(res, 200, {
-          data: response,
           msg: "Logout Success",
+          data: response,
         });
       })
       .catch((objErr) => {

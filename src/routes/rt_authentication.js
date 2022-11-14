@@ -1,9 +1,11 @@
 const authRouter = require("express").Router();
 const authController = require("../controllers/C_authentication");
+const isLogin = require("../middlewares/isLogin");
+
 //login
 authRouter.post("/", authController.login);
 // logout
-// authRouter.delete("/", isLogin(), authController.logout);
+authRouter.delete("/", isLogin(), authController.logout);
 
 module.exports = authRouter;
 

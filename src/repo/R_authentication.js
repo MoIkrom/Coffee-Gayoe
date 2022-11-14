@@ -50,6 +50,15 @@ module.exports = {
       });
     });
   },
+  logout: (token) => {
+    return new Promise((resolve, reject) => {
+      const jwtr = new JWTR(client);
+      jwtr.destroy(token.jti).then((res) => {
+        if (!res) reject(new Error("Login First "));
+        resolve("Success logout account");
+      });
+    });
+  },
 };
 
 // ===================================================================
