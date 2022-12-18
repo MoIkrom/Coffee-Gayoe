@@ -14,17 +14,18 @@ const getTransactions = () => {
   });
 };
 
-const createTransactions = (body) => {
+const createTransactions = (body, token) => {
   return new Promise((resolve, reject) => {
     const query = "insert into transactions (user_id, product_id, promo_id, qty, shiping, tax, total, payment, status) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)";
-    // for loop query += ",($5,$6,$7,$8)";
-    const { user_id, product_id, promo_id, qty, shiping, tax, total, payment, status } = body;
-    postgreDb.query(query, [user_id, product_id, promo_id, qty, shiping, tax, total, payment, status], (err, queryResult) => {
+    const { product_id, promo_id, qty, shiping, tax, total, payment, status } = body;
+    // console.log(body);
+    postgreDb.query(query, [token, product_id, promo_id, qty, shiping, tax, total, payment, status], (err, queryResult) => {
       if (err) {
         console.log(err);
         return reject(err);
       }
       resolve(queryResult);
+      // console.log(queryResult);
     });
   });
 };

@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 module.exports = () => {
   return (req, res, next) => {
     const token = req.header("x-access-token");
-    console.log(token);
+    // console.log(token);
     if (!token) return res.status(401).json({ msg: "You have to Login first", data: null });
 
     //verifikasi

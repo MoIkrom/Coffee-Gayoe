@@ -52,7 +52,7 @@ module.exports = {
   },
   logout: (token) => {
     return new Promise((resolve, reject) => {
-      const jwtr = new JWTR(client);
+      const jwtr = new jwtr(client);
       jwtr.destroy(token.jti).then((res) => {
         if (!res) reject(new Error("Login First "));
         resolve("Success logout account");
