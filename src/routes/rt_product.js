@@ -23,9 +23,10 @@ function uploadFile(req, res, next) {
   });
 }
 
-const { create, edit, drop, search } = require("../controllers/C_product");
+const { create, edit, drop, search, getid } = require("../controllers/C_product");
 
 productRouter.get("/", search);
+productRouter.get("/:id", getid);
 productRouter.post("/", isLogin(), allowedRole("admin"), uploadFile, cloudinary, create);
 productRouter.patch("/:id", isLogin(), allowedRole("admin"), uploadFile, cloudinary, edit);
 productRouter.delete("/:id", isLogin(), allowedRole("admin"), drop);

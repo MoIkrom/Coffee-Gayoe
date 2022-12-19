@@ -211,6 +211,20 @@ const searchProduct = (queryparams) => {
     });
   });
 };
+
+const getid = (params) => {
+  return new Promise((resolve, reject) => {
+    const query = "select * from products where id = $1";
+    postgreDb.query(query, [params.id], (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(result);
+    });
+  });
+};
+
 // const searchProduct = (queryParams) => {
 //   return new Promise((resolve, reject) => {
 //     const query = 'select * from product where lower(name_product) like lower($1) order by id_product asc ';
@@ -272,6 +286,7 @@ const repoProduct = {
   editProduct,
   deleteProduct,
   searchProduct,
+  getid,
   // searchProduct,
   // shorthProduct,
   // filterProduct,

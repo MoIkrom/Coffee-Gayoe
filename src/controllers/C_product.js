@@ -17,6 +17,18 @@ const create = async (req, res) => {
   }
 };
 
+const getid = async (req, res) => {
+  try {
+    const response = await productRepo.getid(req.params);
+    // console.log("Berhasil Get");
+    sendResponse.success(res, 200, {
+      data: response.rows,
+    });
+  } catch (err) {
+    sendResponse.error(res, 500, "Internal Server Error");
+  }
+};
+
 const edit = async (req, res) => {
   try {
     // if (req.file) {
@@ -74,6 +86,7 @@ const productControler = {
   search,
   edit,
   drop,
+  getid,
 };
 
 module.exports = productControler;
