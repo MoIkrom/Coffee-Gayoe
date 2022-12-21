@@ -17,7 +17,7 @@ const getTransactions = () => {
 const historyTransactions = (queryparams, token) => {
   return new Promise((resolve, reject) => {
     let query =
-      "select transactions.id, users.email, products.product_name, products.image, transactions.qty, transactions.tax, transactions.payment, transactions.total, transactions.status from transactions inner join users on users.id = transactions.user_id inner join products on products.id = transactions.product_id where users.id = $1 order by transactions.created_at desc";
+      "select transactions.id, users.email, products.product_name, products.image, transactions.qty, transactions.tax, transactions.payment, transactions.total, transactions.status , transactions.created_at from transactions inner join users on users.id = transactions.user_id inner join products on products.id = transactions.product_id where users.id = $1 order by transactions.created_at desc";
 
     let queryLimit = "";
     let link = `https://coffee-gayoe.vercel.app/api/v1/transactions/history?`;
