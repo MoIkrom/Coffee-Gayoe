@@ -4,9 +4,10 @@ const transactionstRouter = express.Router();
 const isLogin = require("../middlewares/isLogin");
 const allowedRole = require("../middlewares/M_allowedRole");
 
-const { get, create, edit, drop } = require("../controllers/C_transaction");
+const { get, create, history, edit, drop } = require("../controllers/C_transaction");
 
 transactionstRouter.get("/", get);
+transactionstRouter.get("/history", isLogin(), allowedRole("user"), history);
 transactionstRouter.post("/", isLogin(), allowedRole("admin", "user"), create);
 transactionstRouter.patch("/:id", isLogin(), allowedRole("admin"), edit);
 transactionstRouter.delete("/:id", isLogin(), allowedRole("admin"), drop);

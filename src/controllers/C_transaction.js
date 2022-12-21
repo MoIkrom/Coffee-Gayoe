@@ -13,6 +13,18 @@ const get = async (req, res) => {
     });
   }
 };
+
+const history = async (req, res) => {
+  try {
+    const response = await repoTransaction.historyTransactions(req.query, req.userPayload.user_id);
+    // console.log(response);
+    sendResponse.success(res, 200, response);
+  } catch (err) {
+    console.log(err);
+    sendResponse.error(res, 500, err.message);
+  }
+};
+
 const create = async (req, res) => {
   try {
     const response = await repoTransaction.createTransactions(req.body, req.userPayload.user_id);
@@ -52,6 +64,7 @@ const transactionsControler = {
   create,
   edit,
   drop,
+  history,
 };
 
 module.exports = transactionsControler;
