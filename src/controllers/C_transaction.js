@@ -28,10 +28,10 @@ const history = async (req, res) => {
 const create = async (req, res) => {
   try {
     const response = await repoTransaction.createTransactions(req.body, req.userPayload.user_id);
-    // console.log(response);
+    // console.log(response.rows);
     sendResponse.success(res, 200, {
       msg: (response.text = "Create Succes"),
-      // data: response.rows,
+      data: response.rows,
     });
   } catch (err) {
     sendResponse.error(res, 500, "Internal Server Error");
