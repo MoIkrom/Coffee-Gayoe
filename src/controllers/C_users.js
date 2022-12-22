@@ -44,7 +44,7 @@ const edit = async (req, res) => {
     //   req.body.image = req.file.path;
     // }
     const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file.secure_url);
-    // console.log(response);
+    // console.log(req.file.secure_url);
     // response.rows[0].image = `/images/${req.file.filename}`;
     sendResponse.success(res, 200, {
       msg: "edit Profile success",
@@ -52,6 +52,7 @@ const edit = async (req, res) => {
     });
   } catch (err) {
     sendResponse.error(res, 500, "Internal Server Error");
+    console.log(err);
   }
 };
 const editPassword = async (req, res) => {

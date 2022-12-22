@@ -60,7 +60,7 @@ const editUsers = (body, token, file) => {
 
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
-        query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, display_name, gender, addres, image`;
+        query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, firstname, lastname, display_name, gender, addres, image`;
         values.push(body[key], token);
         return;
       }
