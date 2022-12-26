@@ -126,7 +126,7 @@ const searchProduct = (queryparams) => {
       query += "order by created_at asc";
       link += `sort=${queryparams.sort}&`;
     }
-    if (queryparams.sort == "favorite") {
+    if (queryparams.category == "favorite") {
       query = "select products.* ,transactions.qty from products left join transactions on transactions.product_id = products.id order by transactions.qty desc";
       link += `sort=${queryparams.sort}&`;
     }
@@ -154,7 +154,7 @@ const searchProduct = (queryparams) => {
     //   }
     //   return resolve(result);
     // });
-    console.log(query);
+    // console.log(query);
     postgreDb.query(query, (err, result) => {
       postgreDb.query(queryLimit, values, (err, queryresult) => {
         if (err) {
