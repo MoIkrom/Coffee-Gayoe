@@ -107,7 +107,7 @@ const searchProduct = (queryparams) => {
     }
 
     if (queryparams.sort == "expensive") {
-      query += "order by price asc";
+      query += "order by price desc";
       link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "name") {
@@ -115,7 +115,7 @@ const searchProduct = (queryparams) => {
       link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "cheapest") {
-      query += "order by price desc";
+      query += "order by price asc";
       link += `sort=${queryparams.sort}&`;
     }
     if (queryparams.sort == "newest") {
