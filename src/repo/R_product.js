@@ -33,7 +33,7 @@ const editProduct = (body, params, file) => {
       imageProduct = file.url;
       if (!product_name && !price && !category && !description) {
         if (file && file.resource_type == "image") {
-          query += `image = '${imageProduct}',update_at = now() where id = $1`;
+          query += `image = '${imageProduct}',update_at = now() where id = $1 returning image`;
           values.push(params.id);
           data["image"] = imageProduct;
         }
@@ -47,7 +47,7 @@ const editProduct = (body, params, file) => {
 
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
-        query += `${key} = $${idx + 1} where id = $${idx + 2} returning *`;
+        query += `${key} = $${idx + 1} where id = $${idx + 2} returning image`;
         values.push(body[key], params.id);
         return;
       }
