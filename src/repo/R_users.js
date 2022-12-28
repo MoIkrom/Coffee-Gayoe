@@ -136,7 +136,7 @@ const deleteUsers = (params) => {
 const getUsersById = (token) => {
   // console.log(token);
   return new Promise((resolve, reject) => {
-    const query = "select * from users where id =$1";
+    const query = "select id, email, phone_number, display_name, firstname, lastname, username, gender, addres, image, role, created_at from users where id =$1";
     // const payload = req.userPayload;
     // console.log(token);
     postgreDb.query(query, [token], (err, result) => {
