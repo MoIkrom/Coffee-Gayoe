@@ -193,7 +193,7 @@ const searchProduct = (queryparams) => {
             prev: resPrev,
             totalPage: totalPage,
             data: queryresult.rows,
-            currentPage: `Page ${page} of ${totalPage} Pages`,
+            currentPage: `Page ${page} of ${totalPage} `,
           };
           return resolve(meta);
           // return resolve(queryresult);
