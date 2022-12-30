@@ -35,7 +35,8 @@ const createUsers = (body) => {
 const editUsers = (body, token, file) => {
   // console.log(token);
   return new Promise((resolve, reject) => {
-    const { firstname, lastname, username, gender, addres, display_name, image } = body;
+    const { firstname, lastname, addres, display_name, image } = body;
+    // const { firstname, lastname, username, gender, addres, display_name, image } = body;
     let query = "update users set ";
     const values = [];
     let imageProfile = "";
