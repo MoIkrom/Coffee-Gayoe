@@ -44,7 +44,8 @@ const editUsers = (body, token, file) => {
     };
     if (file) {
       imageProfile = file.url;
-      if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
+      // if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
+      if (!firstname && !lastname && !addres && !display_name && !image) {
         if (file && file.resource_type == "image") {
           query += `image = '${imageProfile}',updated_at = now() where id = $1`;
           values.push(token);
