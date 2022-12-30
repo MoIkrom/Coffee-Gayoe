@@ -35,8 +35,7 @@ const createUsers = (body) => {
 const editUsers = (body, token, file) => {
   // console.log(token);
   return new Promise((resolve, reject) => {
-    const { firstname, lastname, addres, display_name, image } = body;
-    // const { firstname, lastname, username, gender, addres, display_name, image } = body;
+    const { firstname, lastname, username, gender, addres, display_name, image } = body;
     let query = "update users set ";
     const values = [];
     let imageProfile = "";
@@ -45,8 +44,7 @@ const editUsers = (body, token, file) => {
     };
     if (file) {
       imageProfile = file.url;
-      // if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
-      if (!firstname && !lastname && !addres && !display_name && !image) {
+      if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
         if (file && file.resource_type == "image") {
           query += `image = '${imageProfile}',updated_at = now() where id = $1`;
           values.push(token);
@@ -62,7 +60,7 @@ const editUsers = (body, token, file) => {
 
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
-        query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, firstname, lastname, display_name, addres, image`;
+        query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, firstname, lastname, display_name, gender, addres, image`;
         values.push(body[key], token);
         return;
       }

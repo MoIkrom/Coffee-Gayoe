@@ -40,12 +40,8 @@ const create = async (req, res) => {
 };
 const edit = async (req, res) => {
   try {
-    // if (req.file) {
-    //   req.body.image = req.file.path;
-    // }
-    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file);
-    console.log(req.file);
-    // response.rows[0].image = `/images/${req.file.filename}`;
+    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file.secure_url);
+    // console.log(req.file.secure_url);
     sendResponse.success(res, 200, {
       msg: "edit Profile success",
       data: response.rows,

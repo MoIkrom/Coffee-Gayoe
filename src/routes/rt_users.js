@@ -32,7 +32,6 @@ usersRouter.get("/profile", isLogin(), allowedRole("user"), getProfile);
 usersRouter.post("/", validate.body("email", "password", "phone_number"), create);
 usersRouter.patch("/editpassword", isLogin(), allowedRole("user", "admin"), editPassword);
 usersRouter.patch("/", isLogin(), allowedRole("user"), uploadFile, cloudinary, edit);
-// usersRouter.patch("/", isLogin(), allowedRole("user"), diskUpload.single("image"), edit);
 usersRouter.delete("/:id", isLogin(), allowedRole("admin"), drop);
 
 module.exports = usersRouter;
