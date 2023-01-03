@@ -54,7 +54,7 @@ const profile = async (req, res) => {
     sendResponse.success(res, 200, {
       msg: "Edit Profile Success",
       data: response.rows,
-      filename: image,
+      // filename: image,
     });
   } catch (err) {
     console.log(err);
