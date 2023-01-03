@@ -46,7 +46,7 @@ const profile = async (req, res) => {
     // push all body lalu if disini mengubah body.image menjadi file.patch
 
     if (req.file) {
-      var image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
+      let image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
       req.body.image = req.file.secure_url;
     }
 
