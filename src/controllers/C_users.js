@@ -40,11 +40,12 @@ const create = async (req, res) => {
 };
 const edit = async (req, res) => {
   try {
-    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file.secure_url);
-    // console.log(req.file.secure_url);
+    const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file);
+    // const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file);
     sendResponse.success(res, 200, {
       msg: "edit Profile success",
       data: response.rows,
+      // filename: image,
     });
   } catch (err) {
     sendResponse.error(res, 500, "Internal Server Error");

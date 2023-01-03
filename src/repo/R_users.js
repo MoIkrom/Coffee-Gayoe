@@ -33,9 +33,10 @@ const createUsers = (body) => {
   });
 };
 const editUsers = (body, token, file) => {
-  // console.log(token);
+  // const editUsers = (body, token, file) => {
+  // console.log("ini File : " + file);
   return new Promise((resolve, reject) => {
-    const { firstname, lastname, username, gender, addres, display_name, image } = body;
+    const { firstname, lastname, username, gender, addres, display_name } = body;
     let query = "update users set ";
     const values = [];
     let imageProfile = "";
@@ -43,20 +44,33 @@ const editUsers = (body, token, file) => {
       id: token,
     };
     if (file) {
-      imageProfile = file.url;
-      if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
+      const imageUrl = `${file.url} `;
+      if (!firstname && !lastname && !username && !gender && !addres && !display_name) {
         if (file && file.resource_type == "image") {
-          query += `image = '${imageProfile}',updated_at = now() where id = $1`;
+          query += `image = '${imageUrl}' where id = $1`;
           values.push(token);
-          data["image"] = imageProfile;
         }
       } else {
         if (file && file.resource_type == "image") {
-          query += `image = '${imageProfile}',`;
-          data["image"] = imageProfile;
+          query += `image = '${imageUrl}',`;
         }
       }
     }
+    // if (file) {
+    //   imageProfile = file.url;
+    //   if (!firstname && !lastname && !username && !gender && !addres && !display_name && !image) {
+    //     if (file && file.resource_type == "image") {
+    //       query += `image = '${imageProfile}',updated_at = now() where id = $1`;
+    //       values.push(token);
+    //       data["image"] = imageProfile;
+    //     }
+    //   } else {
+    //     if (file && file.resource_type == "image") {
+    //       query += `image = '${imageProfile}',`;
+    //       data["image"] = imageProfile;
+    //     }
+    //   }
+    // }
 
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
@@ -66,17 +80,26 @@ const editUsers = (body, token, file) => {
       }
       query += `${key} = $${idx + 1},`;
       values.push(body[key]);
-      // console.log(values);
+      console.log(query);
     });
-    postgreDb
-      .query(query, values)
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((err) => {
-        console.log(err);
-        reject(err);
-      });
+    // postgreDb
+    //   .query(query, values)
+    //   .then((response) => {
+    //     resolve(response);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     reject(err);
+    //   });
+    postgreDb.query(query, values, (err, result) => {
+      if (err) {
+        console.log(query, values, file);
+        return reject(err);
+      }
+      console.log(values);
+      console.log(query);
+      resolve(result);
+    });
   });
 };
 const editPassword = (body, token) => {
