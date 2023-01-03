@@ -38,6 +38,32 @@ const create = async (req, res) => {
     sendResponse.error(res, 500, "Internal Server Error");
   }
 };
+// ========================================
+
+// punya acil
+const profile = async (req, res) => {
+  try {
+    // push all body lalu if disini mengubah body.image menjadi file.patch
+
+    if (req.file) {
+      var image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
+      req.body.image = req.file.secure_url;
+    }
+
+    const response = await repoUsers.profile(req.body, req.userPayload.user_id);
+    sendResponse.success(res, 200, {
+      msg: "Edit Profile Success",
+      data: response.rows,
+      filename: image,
+    });
+  } catch (err) {
+    console.log(err);
+    sendResponse.error(res, 500, "internal server error");
+  }
+};
+
+// ================================================
+
 const edit = async (req, res) => {
   try {
     const response = await repoUsers.editUsers(req.body, req.userPayload.user_id, req.file);
@@ -83,6 +109,7 @@ const UsersControler = {
   editPassword,
   drop,
   getProfile,
+  profile,
 };
 
 module.exports = UsersControler;

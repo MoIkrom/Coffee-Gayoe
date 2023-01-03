@@ -7,7 +7,8 @@ const validate = require("../middlewares/M_validate");
 // const { diskUpload } = require("../middlewares/M_upload");
 const { memoryUpload, errorHandler } = require("../middlewares/M_upload");
 const cloudinary = require("../middlewares/M_cloudinary_profile");
-const { get, create, edit, drop, editPassword, getProfile } = require("../controllers/C_users");
+// const cloudinaryUploader = require("../middleware/cloudinaryProfile");
+const { get, create, edit, drop, editPassword, getProfile, profile } = require("../controllers/C_users");
 // const checkDuplicate = require("../middlewares/M_checkDuplicate");
 
 function uploadFile(req, res, next) {
@@ -27,8 +28,27 @@ function uploadFile(req, res, next) {
   });
 }
 
+// Punya Acil
+function uploadFiles(req, res, next) {
+  memoryUpload.single("image")(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.log(err);
+      return res.status(400).json({ msg: err.message });
+    } else if (err) {
+      return res.json({ msg: err.message });
+    }
+    next();
+  });
+}
+// ========================
+
 usersRouter.get("/", isLogin(), allowedRole("admin"), get);
 usersRouter.get("/profile", isLogin(), allowedRole("user"), getProfile);
+
+// ======================
+// Punya Acil
+usersRouter.patch("/profile", isLogin(), allowedRole("user"), uploadFiles, cloudinary, validate.body("firstname", "lastname", "display_name", "addres", "image"), profile);
+// ======================
 usersRouter.post("/", validate.body("email", "password", "phone_number"), create);
 usersRouter.patch("/editpassword", isLogin(), allowedRole("user", "admin"), editPassword);
 usersRouter.patch("/", isLogin(), allowedRole("user"), uploadFile, cloudinary, edit);
