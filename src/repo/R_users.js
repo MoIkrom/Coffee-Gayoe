@@ -35,13 +35,14 @@ const createUsers = (body) => {
 // ======================================================
 
 // edit profil Acil
+
 const profile = (body, token) => {
   return new Promise((resolve, reject) => {
     let query = "update users set ";
     const values = [];
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
-        query += `${key} = $${idx + 1} where id = $${idx + 2} returning *`;
+        query += `${key} = $${idx + 1} where id = $${idx + 2} returning id , display_name, firstname, lastname,username,addres,image`;
         values.push(body[key], token);
         return;
       }
@@ -59,6 +60,31 @@ const profile = (body, token) => {
       });
   });
 };
+
+// const profile = (body, token) => {
+//   return new Promise((resolve, reject) => {
+//     let query = "update users set ";
+//     const values = [];
+//     Object.keys(body).forEach((key, idx, array) => {
+//       if (idx === array.length - 1) {
+//         query += `${key} = $${idx + 1} where id = $${idx + 2} returning *`;
+//         values.push(body[key], token);
+//         return;
+//       }
+//       query += `${key} = $${idx + 1},`;
+//       values.push(body[key]);
+//     });
+//     postgreDb
+//       .query(query, values)
+//       .then((response) => {
+//         resolve(response);
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         reject(err);
+//       });
+//   });
+// };
 
 // ====================================================
 

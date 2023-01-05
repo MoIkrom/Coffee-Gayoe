@@ -6,12 +6,11 @@ const createProduct = (body, file) => {
     // if (file) {
     //   image = file.secure_url;
     // }
-    const query = "insert into products (product_name, price, stock, size, category, image, description) values ($1,$2,$3,$4,$5,$6,$7) returning *";
-    const { product_name, price, stock, size, category, description } = body;
-    postgreDb.query(query, [product_name, price, stock, size, category, file, description], (err, queryResult) => {
+    const query = "insert into products (product_name, price, stock, category, image, description) values ($1,$2,$3,$4,$5,$6) returning *";
+    const { product_name, price, stock, category, description } = body;
+    postgreDb.query(query, [product_name, price, stock, category, file, description], (err, queryResult) => {
       if (err) {
         console.log(err);
-
         return reject(err);
       }
       resolve(queryResult);

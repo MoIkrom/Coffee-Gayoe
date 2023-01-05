@@ -41,12 +41,15 @@ const create = async (req, res) => {
 // ========================================
 
 // punya acil
+
+// profil
+
 const profile = async (req, res) => {
   try {
     // push all body lalu if disini mengubah body.image menjadi file.patch
 
     if (req.file) {
-      let image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
+      var image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
       req.body.image = req.file.secure_url;
     }
 
@@ -54,7 +57,8 @@ const profile = async (req, res) => {
     sendResponse.success(res, 200, {
       msg: "Edit Profile Success",
       data: response.rows,
-      // filename: image,
+      filename: image,
+      filename: image,
     });
   } catch (err) {
     console.log(err);
