@@ -48,7 +48,14 @@ $ npm install
 3. Add .env
 
 ```sh
-   DB_PORT = 8080 DB_HOST_DEV="Your DB_HOST" DB_USER_DEV="Your DB_USER_DEV" DB_NAME_DEV="Your DB_NAME_DEV" DB_PASS_DEV="Your DB_PASS_DEV" DB_PORT="Your DB_PORT" SECRET_KEY="Your SECRET_KEY" ISSUER = "Your ISSUER"
+   DB_PORT = 8080
+   DB_HOST_DEV="Your DB_HOST"
+   DB_USER_DEV="Your DB_USER_DEV"
+    DB_NAME_DEV="Your DB_NAME_DEV"
+    DB_PASS_DEV="Your DB_PASS_DEV"
+    DB_PORT="Your DB_PORT"
+    SECRET_KEY="Your SECRET_KEY"
+    ISSUER = "Your ISSUER"
 ```
 
 4. Start App
