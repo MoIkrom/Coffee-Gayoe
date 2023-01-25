@@ -61,4 +61,4 @@ $ npm install
 
 ## Related Project
 
-- Backend API Documentation [`here`](https://documenter.getpostman.com/view/23706970/2s847ESaNS)
+- Frontend Deploy [`here`](https://coffee-gayoe-app.vercel.app/)
