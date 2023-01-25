@@ -15,7 +15,7 @@ const get = async (req, res) => {
 };
 const create = async (req, res) => {
   try {
-    const response = await repovoucher.createvoucher(req.body);
+    const response = await repovoucher.createvoucher(req.body, req.file.secure_url);
     sendResponse.success(res, 200, {
       msg: (response.text = "Create Succes"),
       data: response.rows,

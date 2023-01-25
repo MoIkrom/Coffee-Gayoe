@@ -15,15 +15,13 @@ Authentic Coffee from Aceh
 
 ## ENDPOINT DETAILS
 
-| Endpoint        |            Method             | Info         |
-| --------------- | :---------------------------: | :----------- |
-| /auth           | `POST`               `DELETE` | Auth         |
-| /users          | `POST` `GET` `PATCH` `DELETE` | Users        |
-| /products       | `POST` `GET` `PATCH` `DELETE` | Products     |
-| /promos         | `POST` `GET` `PATCH` `DELETE` | Promos       |
-| /transaction    | `POST` `GET` `PATCH` `DELETE` | Transactions |
-
-
+| Endpoint     |            Method             | Info         |
+| ------------ | :---------------------------: | :----------- |
+| /auth        |        `POST` `DELETE`        | Auth         |
+| /users       | `POST` `GET` `PATCH` `DELETE` | Users        |
+| /products    | `POST` `GET` `PATCH` `DELETE` | Products     |
+| /promos      | `POST` `GET` `PATCH` `DELETE` | Promos       |
+| /transaction | `POST` `GET` `PATCH` `DELETE` | Transactions |
 
 ## Features
 
@@ -35,7 +33,7 @@ Authentic Coffee from Aceh
 ## Installation
 
 1. Download this Project or you can type
-   `git@github.com:MoIkrom/Coffee_Gayoe.git`
+   `https://github.com/MoIkrom/Coffee_Gayoe.git`
 
 ```sh
 https://github.com/MoIkrom/Coffee_Gayoe.git
@@ -46,14 +44,21 @@ https://github.com/MoIkrom/Coffee_Gayoe.git
 ```sh
 $ npm install
 ```
+
 3. Add .env
 
 ```sh
-   DB_PORT = 8080 DB_HOST_DEV="localhost" DB_USER_DEV="postgres" DB_NAME_DEV="coffe_gayoe" DB_PASS_DEV="612mikram" DB_PORT="5432" SECRET_KEY="WEB11" ISSUER = "FAZZTRACK"
+   DB_PORT = 8080 DB_HOST_DEV="Your DB_HOST" DB_USER_DEV="Your DB_USER_DEV" DB_NAME_DEV="Your DB_NAME_DEV" DB_PASS_DEV="Your DB_PASS_DEV" DB_PORT="Your DB_PORT" SECRET_KEY="Your SECRET_KEY" ISSUER = "Your ISSUER"
 ```
+
 4. Start App
+
 ```sh
    $ npm run dev
 ```
+
 5. Gayoe Coffee is Running
 
+## Related Project
+
+- Backend API Documentation [`here`](https://documenter.getpostman.com/view/23706970/2s847ESaNS)

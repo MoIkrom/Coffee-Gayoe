@@ -2,7 +2,8 @@ const postgreDb = require("../config/postgre");
 
 const getvoucher = () => {
   return new Promise((resolve, reject) => {
-    const query = "select products.product_name , code, valid , discount from promos join products on promos.product_id = products.id";
+    // const query = "select products.product_name , code, valid , discount from promos join products on promos.product_id = products.id";
+    const query = "select * from promos order by created_at desc";
     postgreDb.query(query, (err, result) => {
       if (err) {
         console.log(err);
@@ -12,11 +13,11 @@ const getvoucher = () => {
     });
   });
 };
-const createvoucher = (body) => {
+const createvoucher = (body, file) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into promos ( product_id, code, valid, discount) values ($1,$2,$3,$4)";
-    const { product_id, code, valid, discount } = body;
-    postgreDb.query(query, [product_id, code, valid, discount], (err, queryResult) => {
+    const query = "insert into promos ( promo_name, code, valid, discount, description, price, image) values ($1,$2,$3,$4,$5,$6,$7) returning*";
+    const { promo_name, code, valid, discount, description, price } = body;
+    postgreDb.query(query, [promo_name, code, valid, discount, description, price, file], (err, queryResult) => {
       if (err) {
         console.log(err);
         return reject(err);

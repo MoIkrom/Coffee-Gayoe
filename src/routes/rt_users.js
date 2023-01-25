@@ -4,10 +4,8 @@ const usersRouter = express.Router();
 const allowedRole = require("../middlewares/M_allowedRole");
 const isLogin = require("../middlewares/isLogin");
 const validate = require("../middlewares/M_validate");
-// const { diskUpload } = require("../middlewares/M_upload");
 const { memoryUpload, errorHandler } = require("../middlewares/M_upload");
 const cloudinary = require("../middlewares/M_cloudinary_profile");
-// const cloudinaryUploader = require("../middleware/cloudinaryProfile");
 const { get, create, edit, drop, editPassword, getProfile, profile } = require("../controllers/C_users");
 // const checkDuplicate = require("../middlewares/M_checkDuplicate");
 
