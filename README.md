@@ -68,6 +68,5 @@ $ npm install
 
 ## Related Project
 
-- Frontend Deploy [`here`](https://coffee-gayoe-app.vercel.app/)
-- Mobile Apps [`here`](https://bit.ly/gayoeapps)
+- Repository Frontend [`here`](https://github.com/MoIkrom/REACT---COFFEE-GAYOE)
 - Repository Mobile Apps [`here`](https://github.com/MoIkrom/New-Coffee-Gayoe/tree/master/GayoeApps)
