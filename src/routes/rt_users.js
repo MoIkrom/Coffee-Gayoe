@@ -47,7 +47,7 @@ usersRouter.get("/profile", isLogin(), allowedRole("user"), getProfile);
 // Punya Acil
 usersRouter.patch("/profile", isLogin(), allowedRole("user"), uploadFiles, cloudinary, profile);
 // ======================
-usersRouter.post("/", validate.body("email", "password", "phone_number"), create);
+usersRouter.post("/", validate.body("email", "password", "phone_number", "firstname", "lastname"), create);
 usersRouter.patch("/editpassword", isLogin(), allowedRole("user", "admin"), editPassword);
 usersRouter.patch("/", isLogin(), allowedRole("user"), uploadFile, cloudinary, edit);
 usersRouter.delete("/:id", isLogin(), allowedRole("admin"), drop);

@@ -14,15 +14,14 @@ const getUsers = () => {
 };
 const createUsers = (body) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into users ( email, password, phone_number) values ($1,$2,$3) returning id,email";
-    const { email, password, phone_number } = body;
+    const query = "insert into users ( email, password, firstname, lastname , phone_number) values ($1,$2,$3,$4,$5) returning id,email";
+    const { email, password, firstname, lastname, phone_number } = body;
     bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
         console.log(err);
         return reject(err);
       }
-      postgreDb.query(query, [email, hashedPassword, phone_number], (err, queryResult) => {
-        console.log(query);
+      postgreDb.query(query, [email, hashedPassword, firstname, lastname, phone_number], (err, queryResult) => {
         if (err) {
           console.log(err);
           return reject(err);
