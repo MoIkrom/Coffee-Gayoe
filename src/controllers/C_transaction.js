@@ -1,6 +1,6 @@
 const repoTransaction = require("../repo/R_transaction");
 const sendResponse = require("../helpers/response");
-const snapMidTrans = require("../config/midTrans");
+const { payment } = require("../helpers/midTrans");
 
 //Get
 const get = async (req, res) => {
@@ -30,36 +30,14 @@ const history = async (req, res) => {
 const create = async (req, res) => {
   try {
     const response = await repoTransaction.createTransactions(req.body, req.userPayload.user_id);
-
-    // FUNGSI UNTUK MENGAMBIL URL MIDTRANS
-    const snap = () => {
-      return new Promise((resolve, reject) => {
-        const transactionId = response.rows[0].id;
-        const totalPayment = response.rows[0].total;
-        let parameter = {
-          transaction_details: {
-            order_id: transactionId,
-            gross_amount: totalPayment,
-          },
-          credit_card: {
-            secure: true,
-          },
-        };
-        snapMidTrans
-          .createTransaction(parameter)
-          .then((transaction) => {
-            resolve(transaction.redirect_url);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      });
+    const transactionId = response.rows[0].id;
+    const totalPayment = response.rows[0].total;
+    const dataTransaction = {
+      transactionId,
+      totalPayment,
     };
 
-    // HASIL DARIFUNGSI DIATAS DITAMPUNG DISINI
-    const redirect_url = await snap();
-
-    console.log(redirect_url);
+    const redirect_url = await payment(dataTransaction);
     sendResponse.success(res, 200, {
       msg: (response.text = "Create Succes"),
       data: response.rows,
