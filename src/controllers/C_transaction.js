@@ -1,5 +1,7 @@
 const repoTransaction = require("../repo/R_transaction");
 const sendResponse = require("../helpers/response");
+const snapMidTrans = require("../config/midTrans");
+
 //Get
 const get = async (req, res) => {
   try {
@@ -28,12 +30,43 @@ const history = async (req, res) => {
 const create = async (req, res) => {
   try {
     const response = await repoTransaction.createTransactions(req.body, req.userPayload.user_id);
-    // console.log(response.rows);
+
+    // FUNGSI UNTUK MENGAMBIL URL MIDTRANS
+    const snap = () => {
+      return new Promise((resolve, reject) => {
+        const transactionId = response.rows[0].id;
+        const totalPayment = response.rows[0].total;
+        let parameter = {
+          transaction_details: {
+            order_id: transactionId,
+            gross_amount: totalPayment,
+          },
+          credit_card: {
+            secure: true,
+          },
+        };
+        snapMidTrans
+          .createTransaction(parameter)
+          .then((transaction) => {
+            resolve(transaction.redirect_url);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    };
+
+    // HASIL DARIFUNGSI DIATAS DITAMPUNG DISINI
+    const redirect_url = await snap();
+
+    console.log(redirect_url);
     sendResponse.success(res, 200, {
       msg: (response.text = "Create Succes"),
       data: response.rows,
+      redirect_url: redirect_url,
     });
   } catch (err) {
+    console.log(err);
     sendResponse.error(res, 500, "Internal Server Error");
   }
 };

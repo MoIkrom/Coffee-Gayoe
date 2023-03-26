@@ -96,7 +96,7 @@ const historyTransactions = (queryparams, token) => {
 
 const createTransactions = (body, token) => {
   return new Promise((resolve, reject) => {
-    const query = "insert into transactions (user_id, product_id, promo_id, qty, shiping, tax, total, payment, status) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning user_id, product_id, promo_id, qty, shiping, tax, total, payment, status ";
+    const query = "insert into transactions (user_id, product_id, promo_id, qty, shiping, tax, total, payment, status) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning * ";
     const { product_id, promo_id, qty, shiping, tax, total, payment, status } = body;
     // console.log(body);
     postgreDb.query(query, [token, product_id, promo_id, qty, shiping, tax, total, payment, status], (err, queryResult) => {
@@ -105,7 +105,7 @@ const createTransactions = (body, token) => {
         return reject(err);
       }
       resolve(queryResult);
-      // console.log(queryResult);
+      // console.log(queryResult.rows[0].id);
     });
   });
 };
