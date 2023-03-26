@@ -1,6 +1,6 @@
 const { getTransactions, historyTransactions, createTransactions, editTransactions, deleteTransactions } = require("../repo/R_transaction");
 const sendResponse = require("../helpers/response");
-const { payment } = require("../helpers/midTrans");
+const { payment, notifikasi } = require("../helpers/midTrans");
 
 module.exports = {
   get: async (req, res) => {
@@ -68,6 +68,75 @@ module.exports = {
     } catch (obJerr) {
       const statusCode = obJerr.statusCode || 500;
       sendResponse.error(res, statusCode, " Internal Server Error");
+    }
+  },
+  midTransNotif: async (req, res) => {
+    try {
+      const result = await notifikasi(req.body);
+      let transactionId = result.order_id;
+      let transactionStatus = result.transaction_status;
+      let fraudStatus = result.fraud_status;
+
+      if (transactionStatus === "capture") {
+        // capture only applies to card transaction, which you need to check for the fraudStatus
+        if (fraudStatus === "challenge") {
+          // TODO set transaction status on your databaase to 'challenge'
+          const setData = {
+            paymentMethod: result.payment_type,
+            statusPayment: "challenge",
+            // updatedAt :
+          };
+          // simpan data ke database menggunakan transaction id
+        } else if (fraudStatus === "accept") {
+          // TODO set transaction status on your databaase to 'success'
+          const setData = {
+            paymentMethod: result.payment_type,
+            statusPayment: "Success",
+            // updatedAt :
+          };
+          // simpan data ke database menggunakan transaction id
+        }
+      } else if (transactionStatus === "settlement") {
+        // TODO set transaction status on your databaase to 'success'
+        const setData = {
+          paymentMethod: result.payment_type,
+          statusPayment: "Success",
+          // updatedAt :
+        };
+        // simpan data ke database menggunakan transaction id
+      } else if (transactionStatus === "deny") {
+        // TODO you can ignore 'deny', because most of the time it allows payment retries
+        // and later can become success
+        const setData = {
+          paymentMethod: result.payment_type,
+          statusPayment: "failed",
+          // updatedAt :
+        };
+        // simpan data ke database menggunakan transaction id
+      } else if (transactionStatus === "cancel" || transactionStatus === "expire") {
+        // TODO set transaction status on your databaase to 'failure'
+        const setData = {
+          paymentMethod: result.payment_type,
+          statusPayment: "failed",
+          // updatedAt :
+        };
+        // simpan data ke database menggunakan transaction id
+      } else if (transactionStatus === "pending") {
+        // TODO set transaction status on your databaase to 'pending' / waiting payment
+        const setData = {
+          paymentMethod: result.payment_type,
+          statusPayment: "pending",
+          // updatedAt :
+        };
+        // simpan data ke database menggunakan transaction id
+      }
+      sendResponse.success(res, 200, {
+        msg: " Succeess Update Status Booking",
+        data: { transactionId, statusPayment: transactionStatus },
+      });
+    } catch (error) {
+      console.log(error);
+      sendResponse.error(res, 500, "Internal Server Error");
     }
   },
 };

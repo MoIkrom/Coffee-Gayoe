@@ -21,4 +21,17 @@ module.exports = {
           reject(error);
         });
     }),
+
+  notifikasi: (data) => {
+    return new Promise((resolve, reject) => {
+      snapMidTrans.transaction
+        .notification(data)
+        .then((statusResponse) => {
+          resolve(statusResponse);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 };
