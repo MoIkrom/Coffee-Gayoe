@@ -1,9 +1,8 @@
-const authRepo = require("../repo/R_authentication");
+const { login, logout } = require("../repo/R_authentication");
 const { error, success } = require("../helpers/response");
 module.exports = {
   login: (req, res) => {
-    authRepo
-      .login(req.body)
+    login(req.body)
       .then((response) => {
         success(res, 200, {
           data: response,
@@ -17,8 +16,7 @@ module.exports = {
   },
 
   logout: (req, res) => {
-    authRepo
-      .logout(req.userPayload)
+    logout(req.userPayload)
       .then((response) => {
         success(res, 200, {
           msg: "Logout Success",
@@ -31,37 +29,3 @@ module.exports = {
       });
   },
 };
-
-// =============================================
-
-// const authRepo = require("../repo/R_authentication");
-
-// module.exports = {
-//   login: (req, res) => {
-//     authRepo
-//       .login(req.body)
-//       .then((response) => {
-//         res.status(200).json({
-//           data: response,
-//           msg: "Login Success",
-//         });
-//       })
-//       .catch((objErr) => {
-//         const statusCode = objErr.statusCode || 500;
-//         res.status(statusCode).json({ msg: objErr.err.message });
-//       });
-//   },
-//   logout: (req, res) => {
-//     authRepo
-//       .login(req.body)
-//       .then((response) => {
-//         res.status(200).json({
-//           msg: "Log Out Success",
-//         });
-//       })
-//       .catch((objErr) => {
-//         const statusCode = objErr.statusCode || 500;
-//         res.status(statusCode).json({ msg: objErr.err.message });
-//       });
-//   },
-// };

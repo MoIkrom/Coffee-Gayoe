@@ -9,9 +9,9 @@ module.exports = {
       }
       req.body = newBody;
       next();
-      if (Object.keys(newBody).length === 0) return res.status(400).json({ msg: "Nothing insert" });
+      if (Object.keys(newBody).length === 0) return res.status(400).json({ msg: "Please Insert Requirement" });
 
-      if (Object.keys(newBody).length !== allowedKeys.length) return res.status(400).json({ msg: " input key does not match " });
+      if (Object.keys(newBody).length !== allowedKeys.length) return res.status(400).json({ msg: " Input key does not match " });
     };
   },
   params: (...allowedKeys) => {
