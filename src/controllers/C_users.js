@@ -48,7 +48,7 @@ module.exports = {
       // PROSES PENGECEKAN DUPLIKASI EMAIL
       const checkEmail = await getUserByEmail(email);
       // console.log(checkEmail.rowCount);
-      if (checkEmail.rowCount > 1) {
+      if (checkEmail.rowCount > 0) {
         return sendResponse.error(res, 403, "Email Already Registered", null);
       }
 
