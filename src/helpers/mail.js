@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const gmail = require("../config/gmail");
 const fs = require("fs");
+const path = require("path");
 const mustache = require("mustache");
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
       },
     });
 
-    const filetemplate = fs.readFileSync(`src/template/email/${data.template}`, "utf-8");
+    const filetemplate = fs.readFileSync(path.resolve(__dirname, `src/template/email/${data.template}`), "utf-8");
 
     const mailOptions = {
       from: `"Coffee Gayoe" <noreply.mail>`,
