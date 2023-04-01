@@ -18,7 +18,7 @@ module.exports = {
       },
     });
 
-    const filetemplate = fs.readFileSync(path.resolve(__dirname, `src/template/email/${data.template}`), "utf-8");
+    const filetemplate = fs.readFileSync(path.resolve(`src/template/email/${data.template}`), "utf-8");
 
     const mailOptions = {
       from: `"Coffee Gayoe" <noreply.mail>`,
