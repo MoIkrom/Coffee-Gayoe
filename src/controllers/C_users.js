@@ -30,11 +30,11 @@ const getProfile = async (req, res) => {
 const create = async (req, res) => {
   try {
     const response = await repoUsers.createUsers(req.body);
-    const { email, firstname, lastname } = await req.body;
+    const { email, username } = await req.body;
 
     const sendMailOptions = {
       to: email,
-      name: `${firstname} ${lastname}`,
+      name: `${username}`,
       subject: "Email Verification !",
       template: "verificationEmail.html",
       buttonUrl: "https://sinau-app.vercel.app/",
