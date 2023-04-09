@@ -31,7 +31,7 @@ module.exports = {
     try {
       const response = await createTransactions(req.body, req.userPayload.user_id);
       const transactionId = response.rows[0].id;
-      const totalPayment = response.rows[0].total;
+      const totalPayment = parseInt(response.rows[0].total);
       const dataTransaction = {
         transactionId,
         totalPayment,
