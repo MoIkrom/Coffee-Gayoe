@@ -36,7 +36,7 @@ module.exports = {
         transactionId,
         totalPayment,
       };
-
+      console.log(typeof totalPayment);
       const redirect_url = await payment(dataTransaction);
       sendResponse.success(res, 200, {
         msg: (response.text = "Create Succes"),

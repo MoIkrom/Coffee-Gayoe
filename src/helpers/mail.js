@@ -10,7 +10,7 @@ module.exports = {
       service: "gmail",
       auth: {
         type: "OAuth2",
-        user: "mikram216@gmail.com",
+        user: "bot.gayoeapps@gmail.com",
         clientId: gmail.clientId,
         clientSecret: gmail.clientsecret,
         refreshToken: gmail.refreshToken,
@@ -28,6 +28,9 @@ module.exports = {
     };
     transporter.sendMail(mailOptions, (err, res) => {
       if (err) return console.log(err);
+      else {
+        console.log("Email sent: " + res.response);
+      }
     });
   },
 };

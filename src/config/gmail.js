@@ -5,12 +5,12 @@ const clientsecret = process.env.CLIENT_SECRET_GOOGLE;
 const refreshToken = process.env.REFRESH_TOKEN_GOOGLE;
 
 const { OAuth2 } = google.auth;
-const OAuth2Client = new OAuth2(clientId, clientsecret);
+const OAuth2Client = new OAuth2(clientId, clientsecret, "https://developers.google.com/oauthplayground");
 OAuth2Client.setCredentials({
   refresh_token: refreshToken,
 });
 
-const accessToken = OAuth2Client.getAccessToken;
+const accessToken = OAuth2Client.getAccessToken();
 
 module.exports = {
   clientId,

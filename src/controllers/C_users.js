@@ -67,7 +67,7 @@ module.exports = {
       const sendMailOptions = {
         to: email,
         name: `${username}`,
-        subject: "Email Verification !",
+        subject: "Email Verification ",
         template: "verificationEmail.html",
         buttonUrl: `https://coffee-gayoe.vercel.app/users/verify/${id}`,
         OTP,
