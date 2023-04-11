@@ -14,7 +14,6 @@ module.exports = {
         }
         if ((email && password).length === 0) return reject({ err: new Error("Please Insert Data Correctly"), statusCode: 401 });
         if (response.rows.length === 0) return reject({ err: new Error("Email/Password is Wrong"), statusCode: 401 });
-        console.log("ini dari repo : " + email);
         const hashedPassword = response.rows[0].password;
         bcrypt.compare(password, hashedPassword, (err, isSame) => {
           if (err) {

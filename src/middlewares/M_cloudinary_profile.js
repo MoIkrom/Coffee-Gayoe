@@ -19,7 +19,6 @@ const uploaderProfile = async (req, res, next) => {
   };
 
   try {
-    // const result = await cloudinary.uploader.upload(datauri.content);
     const result = await cloudinary.uploader.upload(datauri.content, cloudinaryOpt);
     req.file = result;
     next();

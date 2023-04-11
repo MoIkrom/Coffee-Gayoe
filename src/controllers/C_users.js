@@ -113,8 +113,6 @@ module.exports = {
       sendResponse.success(res, 200, {
         msg: "Edit Profile Success",
         data: response.rows,
-        filename: image,
-        filename: image,
       });
     } catch (err) {
       console.log(err);
@@ -128,7 +126,6 @@ module.exports = {
       sendResponse.success(res, 200, {
         msg: "edit Profile success",
         data: response.rows,
-        // filename: image,
       });
     } catch (err) {
       sendResponse.error(res, 500, "Internal Server Error");
