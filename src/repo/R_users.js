@@ -91,7 +91,7 @@ module.exports = {
       const values = [];
       Object.keys(body).forEach((key, idx, array) => {
         if (idx === array.length - 1) {
-          query += `${key} = $${idx + 1} where id = $${idx + 2} returning id , display_name, firstname, lastname,username,addres,image`;
+          query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, firstname, lastname,username,addres,image`;
           values.push(body[key], token);
           return;
         }
@@ -141,7 +141,7 @@ module.exports = {
     // const editUsers = (body, token, file) => {
     // console.log("ini File : " + file);
     return new Promise((resolve, reject) => {
-      const { firstname, lastname, username, gender, addres, display_name } = body;
+      const { firstname, lastname, gender, addres, username } = body;
       let query = "update users set ";
       const values = [];
       let imageProfile = "";
@@ -150,7 +150,7 @@ module.exports = {
       };
       if (file) {
         const imageUrl = `${file.url} `;
-        if (!firstname && !lastname && !username && !gender && !addres && !display_name) {
+        if (!firstname && !lastname && !username && !gender && !addres) {
           if (file && file.resource_type == "image") {
             query += `image = '${imageUrl}' where id = $1`;
             values.push(token);
@@ -179,7 +179,7 @@ module.exports = {
 
       Object.keys(body).forEach((key, idx, array) => {
         if (idx === array.length - 1) {
-          query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, firstname, lastname, display_name, gender, addres, image`;
+          query += `${key} = $${idx + 1} where id = $${idx + 2} returning id, firstname, lastname, username, gender, addres, image`;
           values.push(body[key], token);
           return;
         }
@@ -264,7 +264,7 @@ module.exports = {
   getUsersById: (token) => {
     // console.log(token);
     return new Promise((resolve, reject) => {
-      const query = "select id, email, phone_number, display_name, firstname, lastname, username, gender, addres, image, role, created_at from users where id =$1";
+      const query = "select id, email, phone_number, firstname, lastname, username, gender, addres, image, role, created_at from users where id =$1";
       // const payload = req.userPayload;
       // console.log(token);
       postgreDb.query(query, [token], (err, result) => {

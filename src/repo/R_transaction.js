@@ -4,7 +4,7 @@ module.exports = {
   getTransactions: () => {
     return new Promise((resolve, reject) => {
       const query =
-        "select products.product_name, products.price, products.size, products.category, promos.code, promos.discount, users.display_name, users.addres, transactions.qty, transactions.shiping, transactions.tax, transactions.total, transactions.payment, transactions.status from transactions join products on transactions.product_id = products.id join promos on transactions.promo_id = promos.id join users on transactions.user_id = users.id";
+        "select products.product_name, products.price, products.size, products.category, promos.code, promos.discount, users.username, users.addres, transactions.qty, transactions.shiping, transactions.tax, transactions.total, transactions.payment, transactions.status from transactions join products on transactions.product_id = products.id join promos on transactions.promo_id = promos.id join users on transactions.user_id = users.id";
       postgreDb.query(query, (err, result) => {
         if (err) {
           console.log(err);
@@ -48,8 +48,7 @@ module.exports = {
           }
           // console.log(queryresult);
           // console.log(queryLimit);
-          if (queryresult.rows.length == 0)
-            return reject(new Error("History Not Found"));
+          if (queryresult.rows.length == 0) return reject(new Error("History Not Found"));
           let resNext = null;
           let resPrev = null;
           if (queryparams.page && queryparams.limit) {
@@ -98,41 +97,17 @@ module.exports = {
 
   createTransactions: (body, token) => {
     return new Promise((resolve, reject) => {
-      const query =
-        "insert into transactions (user_id, product_id, promo_id, qty, shiping, tax, total, payment, status) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning * ";
-      const {
-        product_id,
-        promo_id,
-        qty,
-        shiping,
-        tax,
-        total,
-        payment,
-        status,
-      } = body;
+      const query = "insert into transactions (user_id, product_id, promo_id, qty, shiping, tax, total, payment, status) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning * ";
+      const { product_id, promo_id, qty, shiping, tax, total, payment, status } = body;
       // console.log(body);
-      postgreDb.query(
-        query,
-        [
-          token,
-          product_id,
-          promo_id,
-          qty,
-          shiping,
-          tax,
-          total,
-          payment,
-          status,
-        ],
-        (err, queryResult) => {
-          if (err) {
-            console.log(err);
-            return reject(err);
-          }
-          resolve(queryResult);
-          // console.log(queryResult.rows[0].id);
+      postgreDb.query(query, [token, product_id, promo_id, qty, shiping, tax, total, payment, status], (err, queryResult) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
         }
-      );
+        resolve(queryResult);
+        // console.log(queryResult.rows[0].id);
+      });
     });
   },
 
