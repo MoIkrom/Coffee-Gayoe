@@ -1,6 +1,6 @@
 const otpGenerator = require("otp-generator");
 const sendResponse = require("../helpers/response");
-const { sendMail } = require("../helpers/mail");
+// const { sendMail } = require("../helpers/mail");
 const { getUsers, getUsersById, createUsers, profile, editUsers, editPassword, deleteUsers, getUserByEmail, createOTP, getOTP, AccountVerified, deleteOTP } = require("../repo/R_users");
 
 module.exports = {
@@ -64,15 +64,15 @@ module.exports = {
       });
       await createOTP(OTP, id);
 
-      const sendMailOptions = {
-        to: email,
-        name: `${username}`,
-        subject: "Email Verification ",
-        template: "verificationEmail.html",
-        buttonUrl: `https://coffee-gayoe.vercel.app/users/verify/${id}`,
-        OTP,
-      };
-      sendMail(sendMailOptions);
+      // const sendMailOptions = {
+      //   to: email,
+      //   name: `${username}`,
+      //   subject: "Email Verification ",
+      //   template: "verificationEmail.html",
+      //   buttonUrl: `https://coffee-gayoe.vercel.app/users/verify/${id}`,
+      //   OTP,
+      // };
+      // sendMail(sendMailOptions);
 
       sendResponse.success(res, 200, {
         msg: "create success",
@@ -121,6 +121,10 @@ module.exports = {
   },
 
   edit: async (req, res) => {
+    if (req.file) {
+      let image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
+      req.body.image = req.file.secure_url;
+    }
     try {
       const response = await editUsers(req.body, req.userPayload.user_id, req.file);
       sendResponse.success(res, 200, {
