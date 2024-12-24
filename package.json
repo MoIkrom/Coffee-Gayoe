@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/MoIkrom/backend_test#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
     "bcrypt": "^5.1.0",
     "cloudinary": "^1.32.0",
     "cors": "^2.8.5",

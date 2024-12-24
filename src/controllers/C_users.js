@@ -1,163 +1,252 @@
-const otpGenerator = require("otp-generator");
-const sendResponse = require("../helpers/response");
-// const { sendMail } = require("../helpers/mail");
-const { getUsers, getUsersById, createUsers, profile, editUsers, editPassword, deleteUsers, getUserByEmail, createOTP, getOTP, AccountVerified, deleteOTP } = require("../repo/R_users");
+const wrapper = require("../helpers/wrapper");
+const bcrypt = require("bcrypt");
+const {
+  getProfile,
+  getAllUser,
+  getUserByEmail,
+  Register,
+  getCountUser,
+  EditUser,
+  deleteUser,
+} = require("../repo/R_users");
 
 module.exports = {
-  get: async (req, res) => {
+  register: async (req, res) => {
     try {
-      const response = await getUsers();
-      res.status(200).json({
-        result: response.rows,
-      });
-    } catch (error) {
-      res.status(500).json({
-        msg: "Internal server Error",
-      });
-    }
-  },
-  getProfile: async (req, res) => {
-    try {
-      const response = await getUsersById(req.userPayload.user_id);
-      sendResponse.success(res, 200, {
-        result: response.rows,
-      });
-    } catch (err) {
-      console.log(err);
-      sendResponse.error(res, 500, "Server Internal Error");
-    }
-  },
-
-  // Register User
-  create: async (req, res) => {
-    try {
-      const { email, username, password } = await req.body;
+      const { username, email, password, confirmPassword, role } = req.body;
 
       // VALIDASI EMAIL
-      const validateEmail = () => email.match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/);
+      const validateEmail = (email) =>
+        email.match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/);
 
       if (!validateEmail(email)) {
-        return sendResponse.error(res, 400, "Incorrect Email");
+        return wrapper.response(res, 400, "Email is not valid", null);
       }
 
       // PROSES VALIDASI PASSWORD
       if (password.length < 6) {
-        return sendResponse.error(res, 400, "Password At Least 6 Character ", null);
+        return wrapper.response(
+          res,
+          400,
+          "Password must be at least 6 characters",
+          null
+        );
       }
 
-      // PROSES PENGECEKAN DUPLIKASI EMAIL
-      const checkEmail = await getUserByEmail(email);
-      // console.log(checkEmail.rowCount);
-      if (checkEmail.rowCount > 0) {
-        return sendResponse.error(res, 403, "Email Already Registered", null);
+      if (password !== confirmPassword) {
+        return wrapper.response(res, 400, "Password does not match", null);
       }
+
+      // PROSES HASH PASSWORD
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const setUser = {
+        username,
+        email,
+        role,
+        password: hashedPassword,
+      };
 
       // PROSES MENYIMPAN DATA KE DATABASE LEWAT MODEL
-      const response = await createUsers(req.body);
-      const id = response.rows[0].id;
+      const result = await Register(setUser);
 
-      // GENERATE OTP
-      const OTP = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
-        specialChars: false,
-        lowerCaseAlphabets: false,
-      });
-      await createOTP(OTP, id);
-
-      // const sendMailOptions = {
-      //   to: email,
-      //   name: `${username}`,
-      //   subject: "Email Verification ",
-      //   template: "verificationEmail.html",
-      //   buttonUrl: `https://coffee-gayoe.vercel.app/users/verify/${id}`,
-      //   OTP,
-      // };
-      // sendMail(sendMailOptions);
-
-      sendResponse.success(res, 200, {
-        msg: "create success",
-        data: response.rows,
-      });
-    } catch (err) {
-      console.log(err);
-      sendResponse.error(res, 500, "Internal Server Error");
+      return wrapper.response(
+        res,
+        result.status,
+        "Register Success",
+        result.data
+      );
+    } catch (error) {
+      console.error(error);
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(res, status, statusText, errorData);
     }
   },
-  verify: async (req, res) => {
-    try {
-      const { id } = await req.params;
-      const { otp } = await req.body;
 
-      // PROSES PENGECEKAN OTP
-      const verifyOTP = await getOTP(id);
-      if (otp === verifyOTP) {
-        await AccountVerified(id);
-        await deleteOTP(id);
-        return sendResponse.success(res, 200, {
-          msg: "Verify Success ",
-        });
-      }
+  getAllUser: async (request, response) => {
+    try {
+      let { page, limit } = request.query;
+      page = +page || 1;
+      limit = +limit || 4;
+      const totalData = await getCountUser();
+      const totalPage = Math.ceil(totalData / limit);
+      const pagination = { page, totalPage, limit, totalData };
+      const offset = page * limit - limit;
+
+      const result = await getAllUser(offset, limit);
+      return wrapper.response(
+        response,
+        result.status,
+        "Success Get Data !",
+        result.data,
+        pagination
+      );
     } catch (error) {
       console.log(error);
-      return sendResponse.error(res, 500, "Wrong Input OTP");
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
     }
   },
-  profile: async (req, res) => {
+
+  getProfile: async (req, res) => {
+    const token = req.userPayload.user_id;
     try {
-      if (req.file) {
-        var image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
-        req.body.image = req.file.secure_url;
+      const result = await getProfile(token);
+      return wrapper.response(
+        res,
+        result.status,
+        "Success Get Profile !",
+        result.data
+      );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(res, status, statusText, errorData);
+    }
+  },
+
+  editProfile: async (req, res) => {
+    try {
+      // Ambil data produk berdasarkan id
+      const { id } = req.params;
+      const result = await getUserbyId(id);
+      let imagePath = result.data;
+      return console.log(imagePath);
+
+      // if (imagePath.length < 1) {
+      //   // Jika ada error, hapus file gambar yang telah diupload
+      //   if (request.file) {
+      //     fs.unlink(request.file.path, (err) => {
+      //       if (err) {
+      //         console.error("Error deleting uploaded file:", err);
+      //       }
+      //     });
+      //   }
+      //   return wrapper.response(
+      //     response,
+      //     404,
+      //     `User with ID ${id} not found`,
+      //     null
+      //   );
+      // }
+
+      // const { product_name, stock, category, size, price, description } =
+      //   req.body;
+
+      // return wrapper.response(
+      //   res,
+      //   result.status,
+      //   "Success Get Profile !",
+      //   result.data
+      // );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(res, status, statusText, errorData);
+    }
+  },
+
+  getUserbyId: async (request, response) => {
+    const { id } = request.params;
+    try {
+      const result = await getProfile(id);
+      if (result.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data with ID '${id}' Not Found !`,
+          null
+        );
       }
 
-      const response = await profile(req.body, req.userPayload.user_id);
-      sendResponse.success(res, 200, {
-        msg: "Edit Profile Success",
-        data: response.rows,
-      });
-    } catch (err) {
-      console.log(err);
-      sendResponse.error(res, 500, "internal server error");
+      return wrapper.response(
+        response,
+        200,
+        "Success Get User by Id !",
+        result
+      );
+    } catch (error) {
+      console.log(error);
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
     }
   },
 
-  edit: async (req, res) => {
-    if (req.file) {
-      let image = `/${req.file.public_id}.${req.file.format}`; //ubah filename
-      req.body.image = req.file.secure_url;
-    }
+  editUser: async (request, response) => {
     try {
-      const response = await editUsers(req.body, req.userPayload.user_id, req.file);
-      sendResponse.success(res, 200, {
-        msg: "edit Profile success",
-        data: response.rows,
-      });
-    } catch (err) {
-      sendResponse.error(res, 500, "Internal Server Error");
-      console.log(err);
+      const { username, email, role } = request.body;
+      const { id } = request.params;
+      const setData = {
+        username,
+        email,
+        role,
+      };
+      const result = await EditUser(id, setData);
+      if (result.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data with ID '${id}' Not Found !`,
+          null
+        );
+      }
+      return wrapper.response(
+        response,
+        result.status,
+        "Success Update Data !",
+        result.data
+      );
+    } catch (error) {
+      console.log(error);
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
     }
   },
-  editPassword: async (req, res) => {
+
+  deleteUser: async (request, response) => {
     try {
-      const response = await editPassword(req.body, req.userPayload.user_id);
-      sendResponse.success(res, 200, {
-        msg: (response.text = "Password has been changed"),
-        data: null,
-      });
-    } catch (obJerr) {
-      const statusCode = obJerr.statusCode || 500;
-      sendResponse.error(res, statusCode, { msg: obJerr.err.message });
-    }
-  },
-  drop: async (req, res) => {
-    try {
-      const result = await deleteUsers(req.params);
-      sendResponse.success(res, 200, {
-        msg: "Delete Success",
-        data: result.rows,
-      });
-    } catch (obJerr) {
-      const statusCode = obJerr.statusCode || 500;
-      sendResponse.error(res, statusCode, " Internal Server Error");
+      const { id } = request.params;
+      const result = await deleteUser(id);
+      console.log(result);
+      if (result.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data with ID '${id}' Not Found !`,
+          null
+        );
+      }
+      return wrapper.response(response, result.status, "Success Delete Data !");
+    } catch (error) {
+      console.log(error);
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
     }
   },
 };

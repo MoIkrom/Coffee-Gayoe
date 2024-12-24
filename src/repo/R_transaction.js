@@ -1,153 +1,160 @@
-const postgreDb = require("../config/postgre");
+const supabase = require("../config/supabase");
 
 module.exports = {
-  getTransactions: () => {
-    return new Promise((resolve, reject) => {
-      const query =
-        "select products.product_name, products.price, products.size, products.category, promos.code, promos.discount, users.username, users.addres, transactions.qty, transactions.shiping, transactions.tax, transactions.total, transactions.payment, transactions.status from transactions join products on transactions.product_id = products.id join promos on transactions.promo_id = promos.id join users on transactions.user_id = users.id";
-      postgreDb.query(query, (err, result) => {
-        if (err) {
-          console.log(err);
-          return reject(err);
-        }
-        return resolve(result);
-      });
-    });
-  },
-
-  historyTransactions: (queryparams, token) => {
-    return new Promise((resolve, reject) => {
-      let query =
-        "select transactions.id, users.email, products.product_name, products.image, transactions.qty, transactions.tax, transactions.payment, transactions.total, transactions.status , transactions.created_at from transactions inner join users on users.id = transactions.user_id inner join products on products.id = transactions.product_id where users.id = $1 order by transactions.created_at desc";
-
-      let queryLimit = "";
-      let link = `https://coffee-gayoe.vercel.app/api/v1/transactions/history?`;
-
-      let values = [token];
-      if (queryparams.page && queryparams.limit) {
-        let page = parseInt(queryparams.page);
-        let limit = parseInt(queryparams.limit);
-        let offset = (page - 1) * limit;
-        queryLimit = query + ` limit $2 offset $3`;
-        values.push(limit, offset);
-      } else {
-        queryLimit = query;
-      }
-
-      // console.log(queryLimit);
-      postgreDb.query(query, [token], (err, result) => {
-        if (err) {
-          console.log(err);
-          return reject(new Error("Internal Server Error"));
-        }
-        postgreDb.query(queryLimit, values, (err, queryresult) => {
-          // console.log(queryresult);
-          if (err) {
-            console.log(err);
-            return reject(err);
+  createTransactions: (data, items) =>
+    new Promise((resolve, reject) => {
+      // Insert transaksi utama ke tabel transactions
+      supabase
+        .from("transactions")
+        .insert([
+          {
+            user_id: data.user_id,
+            total_belanja: data.total_belanja,
+            status: data.status,
+          },
+        ])
+        .select("*")
+        .then((result) => {
+          if (result.error) {
+            return reject(result.error);
           }
-          // console.log(queryresult);
-          // console.log(queryLimit);
-          if (queryresult.rows.length == 0) return reject(new Error("History Not Found"));
-          let resNext = null;
-          let resPrev = null;
-          if (queryparams.page && queryparams.limit) {
-            let page = parseInt(queryparams.page);
-            let limit = parseInt(queryparams.limit);
-            let start = (page - 1) * limit;
-            let end = page * limit;
-            let next = "";
-            let prev = "";
-            const dataNext = Math.ceil(result.rowCount / limit);
-            if (start <= result.rowCount) {
-              next = page + 1;
-            }
-            if (end > 0) {
-              prev = page - 1;
-            }
-            if (parseInt(next) <= parseInt(dataNext)) {
-              resNext = `${link}page=${next}&limit=${limit}`;
-            }
-            if (parseInt(prev) !== 0) {
-              resPrev = `${link}page=${prev}&limit=${limit}`;
-            }
-            let sendResponse = {
-              dataCount: result.rowCount,
-              next: resNext,
-              prev: resPrev,
-              totalPage: Math.ceil(result.rowCount / limit),
-              data: queryresult.rows,
-            };
-            // console.log(result);
-            return resolve(sendResponse);
-          }
-          let sendResponse = {
-            dataCount: result.rowCount,
-            next: resNext,
-            prev: resPrev,
-            totalPage: null,
-            data: queryresult.rows,
-          };
 
-          return resolve(sendResponse);
-        });
-      });
-    });
-  },
+          // Ambil ID transaksi yang baru saja dimasukkan
+          const transactionId = result.data[0].id;
 
-  createTransactions: (body, token) => {
-    return new Promise((resolve, reject) => {
-      const query = "insert into transactions (user_id, product_id, promo_id, qty, shiping, tax, total, payment, status) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning * ";
-      const { product_id, promo_id, qty, shiping, tax, total, payment, status } = body;
-      // console.log(body);
-      postgreDb.query(query, [token, product_id, promo_id, qty, shiping, tax, total, payment, status], (err, queryResult) => {
-        if (err) {
-          console.log(err);
-          return reject(err);
-        }
-        resolve(queryResult);
-        // console.log(queryResult.rows[0].id);
-      });
-    });
-  },
+          // Menyusun data untuk tabel transaction_items berdasarkan items
+          const itemsData = items.map((item) => ({
+            transaction_id: transactionId,
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: 1000, // Misalnya harga per item, ganti sesuai dengan kebutuhan
+          }));
 
-  editTransactions: (body, params) => {
-    return new Promise((resolve, reject) => {
-      let query = "update transactions set ";
-      const values = [];
-      Object.keys(body).forEach((key, idx, array) => {
-        if (idx === array.length - 1) {
-          query += `${key} = $${idx + 1} where id = $${idx + 2}`;
-          values.push(body[key], params.id);
-          return;
-        }
-        query += `${key} = $${idx + 1},`;
-        values.push(body[key]);
-      });
-      postgreDb
-        .query(query, values)
-        .then((response) => {
-          resolve(response);
+          // Insert data ke tabel transaction_items
+          supabase
+            .from("transaction_items")
+            .insert(itemsData)
+            .select("*")
+            .then((itemsResult) => {
+              if (itemsResult.error) {
+                reject(itemsResult.error);
+              } else {
+                resolve({
+                  transaction: result.data[0],
+                  items: itemsResult.data,
+                });
+              }
+            })
+            .catch((itemsError) => reject(itemsError));
         })
-        .catch((err) => {
-          console.log(err);
-          reject(err);
-        });
-    });
-  },
+        .catch((error) => reject(error));
+    }),
 
-  deleteTransactions: (params) => {
-    return new Promise((resolve, reject) => {
-      const query = "delete from transactions where id = $1";
-      // OR => logika atau sql
-      // "OR" => string OR
-      postgreDb.query(query, [params.id], (err, result) => {
-        if (err) {
-          console.log(err);
-          return reject(err);
-        }
-        resolve(result);
-      });
-    });
-  },
+  getTransactionDetails: (transactionId) =>
+    new Promise((resolve, reject) => {
+      // Ambil data transaksi beserta itemnya
+      supabase
+        .from("transactions")
+        .select("*, transaction_items(*)")
+        .eq("id", transactionId)
+        .then((result) => {
+          if (result.error) {
+            reject(result.error);
+          } else {
+            resolve(result.data[0]);
+          }
+        })
+        .catch((error) => reject(error));
+    }),
+
+  getCountTransactions: () =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("transactions")
+        .select("*", { count: "exact" })
+        .then((result) => {
+          if (!result.error) {
+            resolve(result.count);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+  getAllTransactions: (offset, limit) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("transactions")
+        .select("*")
+        .range(offset, offset + limit - 1)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+  getCountHistory: () =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("transactions")
+        .select("*", { count: "exact" })
+        .then((result) => {
+          if (!result.error) {
+            resolve(result.count);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+  getHistory: (id, offset, limit) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("transactions")
+        .select(
+          `
+          id, 
+          total_belanja,
+          created_at,
+          transaction_items( 
+          quantity,
+            products(
+              product_name,
+              price,
+              image
+                    )
+          )
+          `
+        )
+        .eq("user_id", id)
+        .order("created_at", { ascending: false })
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+  getDetailHistory: (id, offset, limit) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("transaction_items")
+        .select(
+          `products(
+              product_name,
+              price,
+              image
+                   )
+          `
+        )
+        .eq("user_id", id)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
 };
