@@ -22,7 +22,7 @@ module.exports = {
       const checkEmail = await getUserByEmail(email);
       if (checkEmail.data.length < 1) {
         return wrapper.response(response, 404, "Email is Not Registed", null);
-      } 
+      }
 
       //  PROSES PENCOCOKAN PASSWORD
       const isSame = await bcrypt
