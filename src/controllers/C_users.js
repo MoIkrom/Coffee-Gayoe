@@ -8,12 +8,24 @@ const {
   getCountUser,
   EditUser,
   deleteUser,
+  RegisterProfile,
 } = require("../repo/R_users");
 
 module.exports = {
   register: async (req, res) => {
     try {
-      const { username, email, password, confirmPassword, role } = req.body;
+      const {
+        username,
+        email,
+        password,
+        confirmPassword,
+        role,
+        firstname,
+        lastname,
+        address,
+        phone_number,
+        user_id,
+      } = req.body;
 
       // VALIDASI EMAIL
       const validateEmail = (email) =>
@@ -48,14 +60,17 @@ module.exports = {
       };
 
       // PROSES MENYIMPAN DATA KE DATABASE LEWAT MODEL
-      const result = await Register(setUser);
+      const result = await Register(setUser); 
+      const setProfile = {
+        user_id: result.data[0].id,
+        firstname,
+        lastname,
+        address,
+        phone_number,
+      };
+      await RegisterProfile(setProfile);
 
-      return wrapper.response(
-        res,
-        result.status,
-        "Register Success",
-        result.data
-      );
+      return wrapper.response(res, 201, "Register Success", result.data);
     } catch (error) {
       console.error(error);
       const {

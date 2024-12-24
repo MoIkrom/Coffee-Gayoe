@@ -29,6 +29,20 @@ module.exports = {
           }
         });
     }),
+  RegisterProfile: (data) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("profile")
+        .insert([data])
+        .select("user_id, firstname, lastname, address")
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
 
   EditUser: (id, data) =>
     new Promise((resolve, reject) => {
