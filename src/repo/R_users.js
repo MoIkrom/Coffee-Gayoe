@@ -34,7 +34,7 @@ module.exports = {
       supabase
         .from("profile")
         .insert([data])
-        .select("user_id, firstname, lastname, address")
+        .select("user_id, firstname, lastname, address, date_of_birth")
         .then((result) => {
           if (!result.error) {
             resolve(result);

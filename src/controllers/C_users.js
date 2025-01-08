@@ -22,6 +22,7 @@ module.exports = {
         role,
         firstname,
         lastname,
+        date_of_birth,
         address,
         phone_number,
         user_id,
@@ -60,12 +61,13 @@ module.exports = {
       };
 
       // PROSES MENYIMPAN DATA KE DATABASE LEWAT MODEL
-      const result = await Register(setUser); 
+      const result = await Register(setUser);
       const setProfile = {
         user_id: result.data[0].id,
         firstname,
         lastname,
         address,
+        date_of_birth,
         phone_number,
       };
       await RegisterProfile(setProfile);
