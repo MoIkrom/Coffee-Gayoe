@@ -3,10 +3,11 @@ const bcrypt = require("bcrypt");
 const {
   getProfile,
   getAllUser,
-  getUserByEmail,
+  getUsersById,
   Register,
   getCountUser,
   EditUser,
+  EditProfile,
   deleteUser,
   RegisterProfile,
 } = require("../repo/R_users");
@@ -137,37 +138,86 @@ module.exports = {
     try {
       // Ambil data produk berdasarkan id
       const { id } = req.params;
-      const result = await getUserbyId(id);
-      let imagePath = result.data;
-      return console.log(imagePath);
+      const resultUser = await getProfile(id);
+      const currentImage = resultUser[0].profile[0].image;
 
-      // if (imagePath.length < 1) {
-      //   // Jika ada error, hapus file gambar yang telah diupload
-      //   if (request.file) {
-      //     fs.unlink(request.file.path, (err) => {
-      //       if (err) {
-      //         console.error("Error deleting uploaded file:", err);
-      //       }
-      //     });
-      //   }
-      //   return wrapper.response(
-      //     response,
-      //     404,
-      //     `User with ID ${id} not found`,
-      //     null
-      //   );
-      // }
+      if (resultUser.length < 1) {
+        return wrapper.response(
+          res,
+          404,
+          `Data with ID '${id}' Not Found !`,
+          null
+        );
+      }
 
-      // const { product_name, stock, category, size, price, description } =
-      //   req.body;
+      const {
+        username,
+        email,
+        firstname,
+        lastname,
+        date_of_birth,
+        address,
+        phone_number,
+      } = req.body;
 
-      // return wrapper.response(
-      //   res,
-      //   result.status,
-      //   "Success Get Profile !",
-      //   result.data
-      // );
+      // Mengambil nama file gambar yang di-upload, jika ada
+      const image = req.file ? req.file.filename : currentImage;
+
+      // Jika ada file baru yang di-upload, hapus gambar lama
+      if (req.file && currentImage) {
+        const fs = require("fs");
+        const imagePath = `images/${currentImage}`;
+
+        // Hapus file gambar lama dari folder
+        fs.unlinkSync(imagePath);
+      }
+
+      // Validasi email jika email tidak null
+      if (email) {
+        const isValidEmail = (email) =>
+          /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email);
+
+        if (!isValidEmail(email)) {
+          return wrapper.response(res, 400, "Email is not valid", null);
+        }
+      }
+
+      const setUser = {
+        username,
+        email,
+      };
+
+      // PROSES MENYIMPAN DATA KE DATABASE LEWAT MODEL
+      const updateUserResult = await EditUser(id, setUser);
+
+      const setProfile = {
+        firstname,
+        lastname,
+        address,
+        date_of_birth,
+        phone_number,
+        image,
+      };
+      const updateProfileResult = await EditProfile(id, setProfile);
+
+      if (updateProfileResult.error || updateUserResult.error) {
+        if (req.file) {
+          const fs = require("fs");
+          fs.unlinkSync(`images/${req.file.filename}`); // Menghapus file yang diupload
+        }
+        return wrapper.response(res, 500, "Failed to update profile", null);
+      }
+
+      // Gabungkan data profil dengan username dan email
+      const responseData = {
+        ...updateUserResult.data[0],
+        ...updateProfileResult.data[0],
+      };
+
+      // Jika berhasil, kembalikan response sukses
+      return wrapper.response(res, 200, "Update Profile Success", responseData);
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",

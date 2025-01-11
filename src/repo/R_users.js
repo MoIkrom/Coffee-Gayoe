@@ -60,6 +60,22 @@ module.exports = {
         });
     }),
 
+  EditProfile: (id, data) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("profile")
+        .update([data])
+        .select("*")
+        .eq("user_id", id)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+
   deleteUser: (id) =>
     new Promise((resolve, reject) => {
       supabase

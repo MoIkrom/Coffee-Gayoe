@@ -14,12 +14,15 @@ const {
   deleteUser,
 } = require("../controllers/C_users");
 
+const multerConfig = require("../config/multerConfig"); // Mengimport konfigurasi multer
+const upload = multerConfig.upload;
+
 usersRouter.get("/", getAllUser);
 usersRouter.patch("/:id", editUser);
 usersRouter.get("/:id", getUserbyId);
-usersRouter.get("/:id", editProfile);
+usersRouter.patch("/profile/:id", upload, editProfile);
 usersRouter.get("/profile", isLogin(), allowedRole("user"), getProfile);
-usersRouter.put("/profile", isLogin(), allowedRole("user"), editProfile);
+// usersRouter.patch("/profile", isLogin(), allowedRole("user"), editProfile);
 usersRouter.post("/", register);
 usersRouter.delete("/:id", deleteUser);
 
